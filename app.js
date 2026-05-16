@@ -3,25 +3,17 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-const UserRoute = require("./routes/User");
-const UserBlogsRoute = require("./routes/Blog");
-const Blog = require("./models/Blog");
-const cookieParser = require("cookie-parser");
-const { checkForAuthenticationCookie } = require("./middlewares/authentication");
-
 dotenv.config();
 
 const app = express();
 
-console.log("🚀 Starting server...");
+console.log("🚀 Server Starting...");
 
-// MongoDB Connection with better logging
+// MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 10000,
 })
-    .then(() => {
-        console.log("✅ MongoDB Connected Successfully");
-    })
+    .then(() => console.log("✅ MongoDB Connected Successfully"))
     .catch((err) => {
         console.error("❌ MongoDB Connection Failed:", err.message);
     });
@@ -31,16 +23,33 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 // Middlewares
-app.use(cookieParser());
+app.use(require("cookie-parser")());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", express.static(path.resolve("./public")));
 
-app.use(checkForAuthenticationCookie("token"));
+// Authentication Middleware (with error handling)
+try {
+    const { checkForAuthenticationCookie } = require("./middlewares/authentication");
+    app.use(checkForAuthenticationCookie("token"));
+    console.log("✅ Authentication middleware loaded");
+} catch (err) {
+    console.error("❌ Authentication middleware failed to load:", err.message);
+}
+
+// Routes
+try {
+    app.use("/user", require("./routes/User"));
+    app.use("/blogs", require("./routes/Blog"));
+    console.log("✅ Routes loaded successfully");
+} catch (err) {
+    console.error("❌ Routes failed to load:", err.message);
+}
 
 // Home Route
 app.get("/", async (req, res) => {
     try {
+        const Blog = require("./models/Blog");
         const allBlogs = await Blog.find({}).sort({ createdAt: -1 }).lean();
         res.render("home", {
             user: req.user || null,
@@ -52,13 +61,10 @@ app.get("/", async (req, res) => {
     }
 });
 
-app.use("/user", UserRoute);
-app.use("/blogs", UserBlogsRoute);
-
 app.use((req, res) => {
     res.status(404).send("Page Not Found");
 });
 
-const PORT = process.env.PORT || 8000;
+console.log("✅ All modules loaded. Server ready.");
 
 module.exports = app;
