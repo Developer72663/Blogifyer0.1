@@ -43,14 +43,14 @@
             object-fit: cover;
         }
 
-        /* ================== Author Name Color ================== */
+        /* White Color for Author Name and Time */
         .author-name {
-            color: #60a5fa !important;        /* Light Blue - Nice & Visible */
+            color: #ffffff !important;
             font-weight: 600;
         }
-        /* Optional: Hover effect on author name */
-        .author-name:hover {
-            color: #93c5fd;
+        .time-ago {
+            color: #ffffff !important;
+            font-size: 0.85rem;
         }
     </style>
 </head>
@@ -113,9 +113,7 @@
                                         <span class="text-muted">Anonymous Writer</span>
                                     <% } %>
                                     <span class="mx-2 text-muted">•</span>
-                                    <small class="text-muted">
-                                        <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
-                                    </small>
+                                    <small class="time-ago" data-time="<%= blog.createdAt %>"></small>
                                 </div>
 
                                 <h3 class="fw-bold text-white mb-2"><%= blog.title %></h3>
@@ -135,22 +133,53 @@
     <%- include("./partials/scripts") %>
 
     <script>
+        // Time Ago Function
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " year" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " month" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " day" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hour" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minute" + (Math.floor(interval) > 1 ? "s" : "") + " ago";
+
+            return "Just now";
+        }
+
+        // Apply time ago to all elements
+        document.querySelectorAll('.time-ago').forEach(el => {
+            const date = el.getAttribute('data-time');
+            if (date) el.textContent = timeAgo(date);
+        });
+
+        // Delete, Share, Download Functions
         function deleteBlog(id) {
-            if (confirm("Delete this blog?")) {
+            if (confirm("Delete this blog permanently?")) {
                 fetch(`/blogs/${id}`, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) location.reload();
-                        else alert(data.message);
+                        else alert(data.message || "Failed to delete");
                     });
             }
         }
+
         function shareBlog(id) {
             navigator.clipboard.writeText(`${window.location.origin}/blogs/${id}`)
-                .then(() => alert("Link copied!"));
+                .then(() => alert("Link copied to clipboard!"));
         }
+
         function downloadBlog(id) {
-            alert("Download coming soon!");
+            alert("Download feature coming soon!");
         }
     </script>
 </body>
