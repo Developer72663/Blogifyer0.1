@@ -30,6 +30,17 @@ function checkForAuthenticationCookie(cookieName) {
     };
 }
 
-module.exports = {
-    checkForAuthenticationCookie,
+// Add this function
+const restrictTo = (roles = []) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.redirect("/user/signin");
+        }
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).send("Access Denied: Admins Only");
+        }
+        next();
+    };
 };
+
+module.exports = { checkForAuthenticationCookie, restrictTo };
