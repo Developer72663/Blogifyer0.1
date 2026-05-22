@@ -4,10 +4,7 @@ const { createHmac, randomBytes } = require("crypto");
 const { creatTokenForUser } = require("../services/authentication");
 
 const UserSchema = new Schema({
-    fullName: { 
-        type: String, 
-        required: true 
-    },
+    fullName: { type: String, required: true },
     email: { 
         type: String, 
         required: true, 
@@ -17,15 +14,8 @@ const UserSchema = new Schema({
     },
     salt: { type: String },
     password: { type: String },
-    googleId: { 
-        type: String, 
-        unique: true, 
-        sparse: true 
-    },
-    profileImageURL: { 
-        type: String, 
-        default: "/imgs/default.png" 
-    },
+    googleId: { type: String, unique: true, sparse: true },
+    profileImageURL: { type: String, default: "/imgs/default.png" },
     role: { 
         type: String, 
         enum: ["USER", "ADMIN"], 
@@ -33,8 +23,9 @@ const UserSchema = new Schema({
     },
 }, { timestamps: true });
 
-// Password Hashing Middleware - FIXED
+// ✅ FIXED: Pre-save middleware (No async with next())
 UserSchema.pre("save", function (next) {
+    // Skip if Google user or password not modified
     if (this.googleId || !this.password || !this.isModified("password")) {
         return next();
     }
@@ -52,7 +43,7 @@ UserSchema.pre("save", function (next) {
     }
 });
 
-// Match Password
+// Match Password Method
 UserSchema.static("matchPassword", async function (email, password) {
     const user = await this.findOne({ email: email.toLowerCase() });
     if (!user) throw new Error("User not found");
@@ -67,7 +58,7 @@ UserSchema.static("matchPassword", async function (email, password) {
     return creatTokenForUser(user);
 });
 
-// Google User Handling
+// Google User Handler
 UserSchema.static("findOrCreateGoogleUser", async function (profile) {
     try {
         const email = profile.emails[0].value.toLowerCase();
@@ -96,7 +87,7 @@ UserSchema.static("findOrCreateGoogleUser", async function (profile) {
 
         return user;
     } catch (error) {
-        console.error("❌ findOrCreateGoogleUser Error:", error.message);
+        console.error("findOrCreateGoogleUser Error:", error.message);
         throw error;
     }
 });
