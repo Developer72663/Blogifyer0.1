@@ -11,7 +11,9 @@ const UserSchema = new Schema({
     email: { 
         type: String, 
         required: true, 
-        unique: true 
+        unique: true,
+        lowercase: true,
+        trim: true
     },
     salt: { 
         type: String 
@@ -35,9 +37,10 @@ const UserSchema = new Schema({
     },
 }, { timestamps: true });
 
-// ====================== PASSWORD HASHING ======================
+// ====================== PASSWORD HASHING MIDDLEWARE ======================
 UserSchema.pre("save", async function (next) {
-    if (!this.password || !this.isModified("password") || this.googleId) {
+    // Skip if it's a Google user or password is not being modified
+    if (this.googleId || !this.password || !this.isModified("password")) {
         return next();
     }
 
@@ -58,7 +61,7 @@ UserSchema.pre("save", async function (next) {
 
 // ====================== STATIC METHODS ======================
 UserSchema.static("matchPassword", async function (email, password) {
-    const user = await this.findOne({ email });
+    const user = await this.findOne({ email: email.toLowerCase() });
     if (!user) throw new Error("User not found");
     if (!user.password) throw new Error("This account uses Google Sign-In");
 
@@ -73,22 +76,26 @@ UserSchema.static("matchPassword", async function (email, password) {
 
 UserSchema.static("findOrCreateGoogleUser", async function (profile) {
     try {
+        // 1. Try finding by Google ID
         let user = await this.findOne({ googleId: profile.id });
 
         if (!user) {
-            const email = profile.emails[0].value;
+            const email = profile.emails[0].value.toLowerCase();
 
+            // 2. Check if user exists with same email
             user = await this.findOne({ email });
 
             if (user) {
-                // Link Google to existing user
+                // Link Google account to existing user
+                console.log(`🔗 Linking Google ID to existing user: ${email}`);
                 user.googleId = profile.id;
-                if (profile.photos?.[0]?.value) {
+                if (profile.photos && profile.photos[0] && profile.photos[0].value) {
                     user.profileImageURL = profile.photos[0].value;
                 }
                 await user.save();
             } else {
-                // Create new user
+                // 3. Create new user
+                console.log(`🆕 Creating new Google user: ${email}`);
                 user = await this.create({
                     fullName: profile.displayName || "Google User",
                     email: email,
@@ -97,12 +104,14 @@ UserSchema.static("findOrCreateGoogleUser", async function (profile) {
                 });
             }
         }
+
         return user;
     } catch (error) {
-        console.error("❌ findOrCreateGoogleUser Error:", error);
+        console.error("❌ findOrCreateGoogleUser Error:", error.message);
         throw error;
     }
 });
 
 const User = mongoose.models.user || model("user", UserSchema);
+
 module.exports = User;
