@@ -1,39 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <%-include("./partials/head") %>
-    <title>Signup</title>
+    <%-include("./partials/head") %>
+    <title>Sign Up - Blogify</title>
+    <style>
+        .google-btn {
+            background-color: white;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        .google-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #c6c6c6;
+        }
+    </style>
 </head>
 <body>
-<%-include("./partials/nave") %>
+    <%-include("./partials/nave") %>
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 450px;">
-        <h3 class="text-center mb-4">Create Account</h3>
-        
-        <form action="/user/signup" method="POST">
-            <div class="mb-3">
-                <label class="form-label">Full Name</label>
-                <input type="text" name="fullName" class="form-control" required>
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="card p-4 shadow-sm" style="width: 100%; max-width: 450px;">
+            <h3 class="text-center mb-4">Create Account</h3>
+
+            <% if (typeof error !== 'undefined') { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <form action="/user/signup" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="fullName" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email address</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mb-3">Sign Up</button>
+            </form>
+
+            <div class="text-center my-3">
+                <strong>OR</strong>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Email address</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
+            <a href="/user/auth/google" class="google-btn w-100 text-decoration-none">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+                     width="22" height="22" alt="Google">
+                Continue with Google
+            </a>
 
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
-            <p class="text-center mt-3">Already have an account? <a href="/user/signin">Login</a></p>
-        </form>
+            <p class="text-center mt-4 mb-0">
+                Already have an account? <a href="/user/signin">Login</a>
+            </p>
+        </div>
     </div>
-</div>
 
-<%-include("./partials/scripts") %>
+    <%-include("./partials/scripts") %>
 </body>
 </html>
-
