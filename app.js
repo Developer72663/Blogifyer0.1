@@ -57,6 +57,10 @@ app.get("/", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+const AdminRoute = require("./routes/Admin");
+
+// Admin Routes
+app.use("/admin", AdminRoute);
 
 app.use("/user", UserRoute);
 app.use("/blogs", BlogRoute);
