@@ -23,13 +23,11 @@ const UserSchema = new Schema({
     },
 }, { timestamps: true });
 
-// ====================== PASSWORD HASHING ======================
-// VERY IMPORTANT: Use regular function, NOT arrow function
-UserSchema.pre("save", function (next) {
-    console.log("Pre-save middleware running...");
-
+// ====================== PASSWORD HASHING (MODERN ASYNC WAY) ======================
+UserSchema.pre("save", async function () {
+    // Skip for Google users or if password is not being set/changed
     if (this.googleId || !this.password || !this.isModified("password")) {
-        return next();
+        return;
     }
 
     try {
@@ -38,10 +36,9 @@ UserSchema.pre("save", function (next) {
         this.password = createHmac("sha256", salt)
             .update(this.password)
             .digest("hex");
-        next();
     } catch (error) {
         console.error("❌ Password Hashing Error:", error);
-        next(error);
+        throw error;
     }
 });
 
