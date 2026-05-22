@@ -4,10 +4,8 @@ const Blog = require("../models/Blog");
 
 const { restrictToLoggedInUserOnly } = require("../middlewares/authentication");
 
-// Protect route
 router.use(restrictToLoggedInUserOnly);
 
-// GET User Profile
 router.get("/", async (req, res) => {
     try {
         const userBlogs = await Blog.find({ createdBy: req.user._id })
@@ -19,7 +17,7 @@ router.get("/", async (req, res) => {
             blogs: userBlogs
         });
     } catch (error) {
-        console.error("Profile Route Error:", error);
+        console.error("Profile Error:", error);
         res.status(500).send("Server Error");
     }
 });
