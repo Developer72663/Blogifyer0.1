@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 
 const UserRoute = require("./routes/User");
-const GoogleAuthRoute = require("./routes/GoogleAuthentication"); // New separate file
+const GoogleAuthRoute = require("./routes/GoogleAuthentication");
 const BlogRoute = require("./routes/Blog");
 const AdminRoute = require("./routes/Admin");
 const ProfileRoute = require("./routes/Profile");
@@ -15,10 +15,11 @@ const { checkForAuthenticationCookie } = require("./middlewares/authentication")
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Load Environment Variables
-if (process.env.NODE_ENV !== "production") {
-    require("dotenv").config();
-}
+// ====================== LOAD ENVIRONMENT VARIABLES ======================
+require("dotenv").config();   // Always load first - Critical for Render
+
+console.log("🔧 ENV Check - EMAIL_USER:", !!process.env.EMAIL_USER);
+console.log("🔧 ENV Check - EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "Loaded" : "Missing");
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -62,8 +63,8 @@ app.get("/", async (req, res) => {
 // ====================== ROUTES ======================
 app.use("/admin", AdminRoute);
 app.use("/user/profile", ProfileRoute);
-app.use("/user", UserRoute);           // Normal signup/signin
-app.use("/user", GoogleAuthRoute);     // Google OAuth routes
+app.use("/user", UserRoute);           // Normal signup/signin + OTP
+app.use("/user", GoogleAuthRoute);     // Google OAuth
 app.use("/blogs", BlogRoute);
 
 // Start Server
