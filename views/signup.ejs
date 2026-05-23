@@ -68,32 +68,26 @@
       let otpValue = '';
       boxes.forEach(box => otpValue += box.value);
       document.getElementById('hiddenOtp').value = otpValue;
-
-      if (current.value.length === 1 && index < 5) {
-        boxes[index + 1].focus();
-      }
+      if (current.value.length === 1 && index < 5) boxes[index + 1].focus();
     }
 
     function showMessage(text, type = 'danger') {
-      const msgDiv = document.getElementById('message');
-      msgDiv.textContent = text;
-      msgDiv.style.display = 'block';
-      msgDiv.className = `alert alert-${type}`;
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.style.display = 'block';
+      msg.className = `alert alert-${type}`;
     }
 
-    // Send OTP - FIXED URL
+    // Send OTP
     document.getElementById('sendOtpBtn').addEventListener('click', async function() {
       const email = document.getElementById('email').value.trim();
-      if (!email) {
-        showMessage("Please enter your email first!", "warning");
-        return;
-      }
+      if (!email) return showMessage("Please enter email first!", "warning");
 
       this.disabled = true;
       this.textContent = "Sending...";
 
       try {
-        const res = await fetch('/user/send-otp', {   // ← Fixed: /user/send-otp
+        const res = await fetch('/user/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
@@ -111,24 +105,24 @@
           this.textContent = "Send OTP";
         }
       } catch (err) {
-        showMessage("Failed to send OTP. Try again.", "danger");
+        showMessage("Failed to send OTP. Check console.", "danger");
         this.disabled = false;
         this.textContent = "Send OTP";
       }
     });
 
-    // Signup Form - FIXED URL
+    // Signup
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
-      submitBtn.textContent = "Creating Account...";
+      submitBtn.textContent = "Creating...";
 
       const formData = new FormData(this);
       const data = Object.fromEntries(formData.entries());
 
       try {
-        const res = await fetch('/user/signup', {   // ← Fixed: /user/signup
+        const res = await fetch('/user/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -137,7 +131,7 @@
         const result = await res.json();
 
         if (result.success) {
-          showMessage("🎉 Account created successfully! Redirecting...", "success");
+          showMessage("🎉 Account created! Redirecting...", "success");
           setTimeout(() => window.location.href = "/", 1500);
         } else {
           showMessage(result.message, "danger");
@@ -145,20 +139,9 @@
           submitBtn.textContent = "Create Account";
         }
       } catch (err) {
-        showMessage("Something went wrong. Please try again.", "danger");
+        showMessage("Something went wrong.", "danger");
         submitBtn.disabled = false;
         submitBtn.textContent = "Create Account";
-      }
-    });
-
-    // Paste OTP support
-    document.getElementById('otpContainer').addEventListener('paste', function(e) {
-      const pasteData = e.clipboardData.getData('text').trim();
-      if (pasteData.length === 6 && /^\d{6}$/.test(pasteData)) {
-        const boxes = document.querySelectorAll('.otp-box');
-        pasteData.split('').forEach((digit, i) => boxes[i].value = digit);
-        document.getElementById('hiddenOtp').value = pasteData;
-        boxes[5].focus();
       }
     });
   </script>
