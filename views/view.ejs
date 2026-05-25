@@ -31,24 +31,25 @@
             border-radius: 8px;
         }
         
-        /* Beautifully Styled Dark Code Container Box
-           With scroll functionality for long codes
+        /* FIXED PRE CONTAINER: 
+           Creates a bounded box with clear up/down scroll support
         */
         .blog-content pre {
-            background-color: #282c34 !important; /* Fixed theme dark background */
+            background-color: #282c34 !important;
             padding: 1.25rem;
             border-radius: 10px;
             margin: 1.8rem 0;
             box-shadow: 0 8px 24px rgba(0,0,0,0.18);
             border: 1px solid #3e4451;
             
-            /* Scroll configuration for long codes */
-            max-height: 450px; /* Limits code box height */
-            overflow-y: auto;  /* Adds Vertical Scrollbar if code is too long */
-            overflow-x: auto;  /* Adds Horizontal Scrollbar if line is too wide */
+            /* Enable clear up/down/left/right scrolling constraints */
+            max-height: 400px !important; 
+            overflow-y: auto !important;  /* Force up/down vertical scrolling */
+            overflow-x: auto !important;  /* Force left/right horizontal scrolling */
+            display: block;
         }
         
-        /* Ensures code text inherits distinct color highlighting variables from css theme */
+        /* Ensures the text lines don't break abnormally and force horizontal scroll structure */
         .blog-content pre code {
             font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace !important;
             font-size: 0.95rem;
@@ -56,12 +57,15 @@
             padding: 0;
             display: block;
             line-height: 1.6;
+            white-space: pre !important; /* Prevents wrapping, forcing scroll fields */
+            word-break: normal !important;
+            word-wrap: normal !important;
         }
 
-        /* Customize scrollbars for code boxes to look smooth and dark */
+        /* Sleek custom scrollbars to match the dark slate theme */
         .blog-content pre::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 10px;  /* Thickness for vertical up/down scrolling */
+            height: 10px; /* Thickness for horizontal left/right scrolling */
         }
         .blog-content pre::-webkit-scrollbar-track {
             background: #21252b;
@@ -70,12 +74,13 @@
         .blog-content pre::-webkit-scrollbar-thumb {
             background: #4b5263;
             border-radius: 10px;
+            border: 2px solid #21252b;
         }
         .blog-content pre::-webkit-scrollbar-thumb:hover {
             background: #5c6370;
         }
 
-        /* Inline code highlights inside common paragraphs (e.g. `config`) */
+        /* Inline word snippet highlight highlights */
         .blog-content p code {
             background-color: #f1f3f5;
             color: #d63384;
