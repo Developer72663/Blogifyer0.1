@@ -31,19 +31,17 @@
             border-radius: 8px;
         }
         
-        /* FIXED PRE CONTAINER: 
-           Creates a bounded box with clear up/down scroll support
-        */
+        /* FIXED CONTAINER: Creates a bounded box with clear up/down scroll support */
         .blog-content pre {
-            background-color: #282c34 !important;
+            background-color: #282c34 !important; /* Force true One Dark background color */
             padding: 1.25rem;
             border-radius: 10px;
             margin: 1.8rem 0;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             border: 1px solid #3e4451;
             
             /* Enable clear up/down/left/right scrolling constraints */
-            max-height: 400px !important; 
+            max-height: 420px !important; 
             overflow-y: auto !important;  /* Force up/down vertical scrolling */
             overflow-x: auto !important;  /* Force left/right horizontal scrolling */
             display: block;
@@ -52,7 +50,7 @@
         /* Ensures the text lines don't break abnormally and force horizontal scroll structure */
         .blog-content pre code {
             font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace !important;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             background-color: transparent !important;
             padding: 0;
             display: block;
@@ -61,6 +59,17 @@
             word-break: normal !important;
             word-wrap: normal !important;
         }
+
+        /* SPECIFIC HIGHLIGHT.JS COLOR OVERRIDES FOR VIBRANT RENDERING */
+        .hljs-keyword, .hljs-selector-tag { color: #c678dd !important; font-weight: bold; } /* Purple (const, function) */
+        .hljs-string { color: #98c379 !important; }                                       /* Green strings */
+        .hljs-title, .hljs-section { color: #61afef !important; }                        /* Blue functions/tags */
+        .hljs-variable, .hljs-template-variable { color: #e06c75 !important; }            /* Red variables */
+        .hljs-comment { color: #5c6370 !important; font-style: italic; }                  /* Gray comments */
+        .hljs-attr { color: #d19a66 !important; }                                         /* Orange attributes */
+        .hljs-number { color: #d19a66 !important; }                                       /* Orange numbers */
+        .hljs-tag { color: #e06c75 !important; }                                          /* HTML Tag names */
+        .hljs-name { color: #e06c75 !important; }                                         /* Tag tags element names */
 
         /* Sleek custom scrollbars to match the dark slate theme */
         .blog-content pre::-webkit-scrollbar {
@@ -80,7 +89,7 @@
             background: #5c6370;
         }
 
-        /* Inline word snippet highlight highlights */
+        /* Inline word snippet highlights inside common paragraphs */
         .blog-content p code {
             background-color: #f1f3f5;
             color: #d63384;
