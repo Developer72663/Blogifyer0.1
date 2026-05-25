@@ -31,20 +31,21 @@ app.use(express.static(path.resolve("./public")));
 
 app.use(passport.initialize());
 app.use(checkForAuthenticationCookie("token"));
-app.use(queryHandler);   // Query Params Middleware
+app.use(queryHandler);
 
-// ====================== GRAPHQL ======================
+// ====================== GRAPHQL ROUTE ======================
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
-    graphiql: true
+    graphiql: true,           // Enable GraphQL Playground
+    context: (req) => ({ user: req.user })   // Pass user to GraphQL
 }));
 
-// ====================== HOME ROUTE WITH QUERY PARAMS ======================
+// ====================== HOME ROUTE ======================
 app.get("/", async (req, res) => {
     try {
         const Blog = require("./models/Blog");
-        const { search = '', sort = 'newest', page = 1, limit = 9 } = req.queryParams;
+        const { search = '', sort = 'newest', page = 1, limit = 9 } = req.queryParams || req.query;
 
         const filter = search ? {
             $or: [
@@ -85,7 +86,7 @@ app.get("/", async (req, res) => {
     }
 });
 
-// ====================== ROUTES ======================
+// ====================== OTHER ROUTES ======================
 app.use("/admin", AdminRoute);
 app.use("/user/profile", ProfileRoute);
 app.use("/user", UserRoute);
@@ -94,7 +95,7 @@ app.use("/blogs", BlogRoute);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 GraphQL → http://localhost:${PORT}/graphql`);
+    console.log(`📊 GraphQL Playground → http://localhost:${PORT}/graphql`);
 });
 
 module.exports = app;
