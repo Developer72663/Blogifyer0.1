@@ -1,7 +1,7 @@
 {
   "name": "blogify",
-  "version": "1.0.0",
-  "description": "Blogify - Blog website with OTP, GraphQL & Query Params",
+  "version": "2.0.0",
+  "description": "Blogify - Advanced blogging platform with GraphQL, comments, analytics, and more",
   "license": "ISC",
   "author": "",
   "type": "commonjs",
@@ -20,6 +20,7 @@
     "ejs": "^5.0.2",
     "express": "^4.19.2",
     "express-graphql": "^0.12.0",
+    "express-rate-limit": "^7.1.5",
     "graphql": "^16.9.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.6.0",
