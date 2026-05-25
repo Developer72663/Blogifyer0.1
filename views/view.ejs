@@ -31,29 +31,33 @@
             border-radius: 8px;
         }
         
-        /* HIGH-PERFORMANCE OVERFLOW CONTAINER 
-           Optimized to hold 10,000+ lines of code flawlessly
-        */
+        /* =========================================================
+           HIGH-PERFORMANCE CODE BLOCK CONTAINER
+           Optimized for 10,000+ lines across any language
+           ========================================================= */
         .blog-content pre {
-            background-color: #282c34 !important; /* Force true One Dark background color */
+            position: relative;           /* For copy button positioning */
+            background-color: #282c34 !important;
             padding: 1.25rem;
             border-radius: 10px;
-            margin: 1.8rem 0;
+            margin: 2.2rem 0;             /* Strong separation from text */
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             border: 1px solid #3e4451;
             
-            /* Strict constraints to handle long structures with clean scrolling */
+            /* Strict scrolling constraints */
             max-height: 550px !important; 
-            overflow-y: auto !important;  /* Smooth Up/Down vertical scrolling */
-            overflow-x: auto !important;  /* Smooth Left/Right horizontal scrolling */
+            overflow-y: auto !important;
+            overflow-x: auto !important;
             display: block;
 
-            /* Hardware Acceleration for smooth scrolling through thousands of lines */
+            /* Performance & isolation for massive blocks */
             will-change: transform;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;      /* Prevent body scroll leak */
+            contain: paint layout;              /* Browser layer isolation */
         }
         
-        /* High-efficiency code typography rendering */
+        /* High-efficiency code typography */
         .blog-content pre code {
             font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace !important;
             font-size: 0.92rem;
@@ -61,27 +65,79 @@
             padding: 0;
             display: block;
             line-height: 1.6;
+            tab-size: 4;
+            -moz-tab-size: 4;
             white-space: pre !important; 
             word-break: normal !important;
             word-wrap: normal !important;
         }
 
-        /* VIBRANT HIGHLIGHT.JS THEME COLOR OVERRIDES */
+        /* Copy button inside code blocks */
+        .copy-code-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(62, 68, 81, 0.9);
+            color: #abb2bf;
+            border: 1px solid #4b5263;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-family: inherit;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+        .blog-content pre:hover .copy-code-btn {
+            opacity: 1;
+        }
+        .copy-code-btn:hover {
+            background: #4b5263;
+            color: #fff;
+        }
+        .copy-code-btn.copied {
+            background: #98c379;
+            color: #282c34;
+            border-color: #98c379;
+        }
+
+        /* VIBRANT HIGHLIGHT.JS THEME OVERRIDES */
         .hljs {
             color: #abb2bf !important;
         }
-        .hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #c678dd !important; font-weight: bold; } /* Purple */
-        .hljs-string, .hljs-meta .hljs-string { color: #98c379 !important; }                                 /* Green strings */
-        .hljs-title, .hljs-section, .hljs-function { color: #61afef !important; }                          /* Blue functions */
-        .hljs-variable, .hljs-template-variable, .hljs-params { color: #e06c75 !important; }              /* Red variables */
-        .hljs-comment, .hljs-quote { color: #7f848e !important; font-style: italic; }                    /* Slate comments */
-        .hljs-attr, .hljs-number, .hljs-literal { color: #d19a66 !important; }                             /* Orange attributes/numbers */
-        .hljs-tag, .hljs-name, .hljs-type { color: #e06c75 !important; }                                    /* HTML tags */
+        .hljs-keyword, .hljs-selector-tag, .hljs-built_in { 
+            color: #c678dd !important; 
+            font-weight: bold; 
+        } /* Purple */
+        .hljs-string, .hljs-meta .hljs-string { 
+            color: #98c379 !important; 
+        }                                 /* Green */
+        .hljs-title, .hljs-section, .hljs-function { 
+            color: #61afef !important; 
+        }                          /* Blue */
+        .hljs-variable, .hljs-template-variable, .hljs-params { 
+            color: #e06c75 !important; 
+        }              /* Red */
+        .hljs-comment, .hljs-quote { 
+            color: #7f848e !important; 
+            font-style: italic; 
+        }                    /* Slate */
+        .hljs-attr, .hljs-number, .hljs-literal { 
+            color: #d19a66 !important; 
+        }                             /* Orange */
+        .hljs-tag, .hljs-name, .hljs-type { 
+            color: #e06c75 !important; 
+        }                                    /* HTML tags */
+        .hljs-property, .hljs-regexp { 
+            color: #56b6c2 !important; 
+        }                            /* Cyan */
 
-        /* Sleek custom scrollbars to match the dark slate theme */
+        /* Sleek custom scrollbars matching dark slate theme */
         .blog-content pre::-webkit-scrollbar {
-            width: 10px;  /* Vertical up/down scrollbar track width */
-            height: 10px; /* Horizontal left/right scrollbar track height */
+            width: 10px;
+            height: 10px;
         }
         .blog-content pre::-webkit-scrollbar-track {
             background: #21252b;
@@ -96,14 +152,16 @@
             background: #5c6370;
         }
 
-        /* Inline word snippet highlights inside common paragraphs */
-        .blog-content p code {
+        /* Inline word snippet highlights inside paragraphs */
+        .blog-content p code,
+        .blog-content li code {
             background-color: #f1f3f5;
             color: #d63384;
             border-radius: 4px;
             padding: 0.2rem 0.4rem;
-            font-family: monospace;
+            font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
             font-size: 0.9em;
+            border: 1px solid #e9ecef;
         }
 
         .sidebar-widget {
@@ -165,6 +223,7 @@
                          onerror="this.src='/images/default-blog.png';">
                 <% } %>
 
+                <!-- Blog body: text separate, code blocks render in black boxes -->
                 <div class="blog-content mb-5">
                     <%- renderMarkdown(blog.body) %>
                 </div>
@@ -296,6 +355,46 @@
     <script>
         const blogId = '<%= blog._id %>';
         const currentUserId = '<%= locals.user ? locals.user._id : "" %>';
+
+        /* =========================================================
+           COPY-TO-CLIPBOARD FOR ALL CODE BLOCKS
+           ========================================================= */
+        function initCodeCopyButtons() {
+            document.querySelectorAll('.blog-content pre').forEach(pre => {
+                // Skip if already has button (re-runs safe)
+                if (pre.querySelector('.copy-code-btn')) return;
+
+                const btn = document.createElement('button');
+                btn.className = 'copy-code-btn';
+                btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                btn.setAttribute('aria-label', 'Copy code to clipboard');
+                
+                btn.addEventListener('click', async () => {
+                    const code = pre.querySelector('code');
+                    if (!code) return;
+                    try {
+                        await navigator.clipboard.writeText(code.innerText);
+                        btn.classList.add('copied');
+                        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        setTimeout(() => {
+                            btn.classList.remove('copied');
+                            btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                        }, 2000);
+                    } catch (err) {
+                        // Fallback for older browsers
+                        const range = document.createRange();
+                        range.selectNode(code);
+                        window.getSelection().removeAllRanges();
+                        window.getSelection().addRange(range);
+                        document.execCommand('copy');
+                        window.getSelection().removeAllRanges();
+                        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
+                    }
+                });
+                pre.appendChild(btn);
+            });
+        }
 
         async function toggleLike() {
             if (!currentUserId) {
@@ -456,7 +555,11 @@
             }
         }
 
-        loadComments();
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initCodeCopyButtons();
+            loadComments();
+        });
     </script>
 </body>
 </html>
