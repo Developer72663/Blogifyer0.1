@@ -31,29 +31,51 @@
             border-radius: 8px;
         }
         
-        /* Layout formatting for code container blocks */
+        /* Beautifully Styled Dark Code Container Box
+           With scroll functionality for long codes
+        */
         .blog-content pre {
-            background-color: #282c34 !important; /* Forces rich code-box dark tint */
+            background-color: #282c34 !important; /* Fixed theme dark background */
             padding: 1.25rem;
             border-radius: 10px;
-            overflow-x: auto;
             margin: 1.8rem 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
             border: 1px solid #3e4451;
+            
+            /* Scroll configuration for long codes */
+            max-height: 450px; /* Limits code box height */
+            overflow-y: auto;  /* Adds Vertical Scrollbar if code is too long */
+            overflow-x: auto;  /* Adds Horizontal Scrollbar if line is too wide */
         }
         
-        /* Enforces high-contrast text rendering inside dark snippets */
+        /* Ensures code text inherits distinct color highlighting variables from css theme */
         .blog-content pre code {
-            font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace !important;
+            font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace !important;
             font-size: 0.95rem;
             background-color: transparent !important;
-            color: #abb2bf !important; /* Fallback crisp light gray text color */
             padding: 0;
             display: block;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        /* Inline single-word highlights (e.g. `const path`) */
+        /* Customize scrollbars for code boxes to look smooth and dark */
+        .blog-content pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .blog-content pre::-webkit-scrollbar-track {
+            background: #21252b;
+            border-radius: 10px;
+        }
+        .blog-content pre::-webkit-scrollbar-thumb {
+            background: #4b5263;
+            border-radius: 10px;
+        }
+        .blog-content pre::-webkit-scrollbar-thumb:hover {
+            background: #5c6370;
+        }
+
+        /* Inline code highlights inside common paragraphs (e.g. `config`) */
         .blog-content p code {
             background-color: #f1f3f5;
             color: #d63384;
