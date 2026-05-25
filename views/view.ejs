@@ -32,7 +32,7 @@
         }
         
         /* =========================================================
-           CODE BLOCK CONTAINER (Screenshot Style)
+           CODE BLOCK WRAPPER (Dark box + badge + footer)
            ========================================================= */
         .code-block-wrapper {
             position: relative;
@@ -43,7 +43,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
         
-        /* Language badge at top-left */
+        /* Language badge top-left */
         .code-lang-badge {
             display: inline-block;
             background: #2d2d2d;
@@ -58,10 +58,10 @@
             text-transform: lowercase;
         }
         
-        /* The scrollable code area */
+        /* Scrollable code area */
         .blog-content pre {
             background-color: #1e1e1e !important;
-            padding: 1rem 1.25rem 1rem 1.25rem;
+            padding: 1rem 1.25rem;
             margin: 0;
             border-radius: 0;
             box-shadow: none;
@@ -130,38 +130,38 @@
             color: #98c379;
         }
 
-        /* VIBRANT HIGHLIGHT.JS THEME OVERRIDES (Screenshot Colors) */
+        /* VIBRANT SYNTAX COLORS (Screenshot Style) */
         .hljs {
             color: #d4d4d4 !important;
         }
         .hljs-keyword, .hljs-selector-tag, .hljs-built_in { 
             color: #c586c0 !important; 
             font-weight: normal; 
-        } /* Purple (tags like html, head, body) */
+        }
         .hljs-string, .hljs-meta .hljs-string { 
             color: #ce9178 !important; 
-        }                                 /* Orange-ish strings */
+        }
         .hljs-title, .hljs-section, .hljs-function { 
             color: #dcdcaa !important; 
-        }                          /* Yellow functions */
+        }
         .hljs-variable, .hljs-template-variable, .hljs-params { 
             color: #9cdcfe !important; 
-        }              /* Light blue variables */
+        }
         .hljs-comment, .hljs-quote { 
             color: #6a9955 !important; 
             font-style: italic; 
-        }                    /* Green comments */
+        }
         .hljs-attr, .hljs-number, .hljs-literal { 
             color: #9cdcfe !important; 
-        }                             /* Light blue attrs */
+        }
         .hljs-tag, .hljs-name, .hljs-type { 
             color: #569cd6 !important; 
-        }                                    /* Blue HTML brackets */
+        }
         .hljs-property, .hljs-regexp { 
             color: #4ec9b0 !important; 
-        }                            /* Teal */
+        }
 
-        /* Custom scrollbars matching dark theme */
+        /* Custom scrollbars */
         .blog-content pre::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -178,7 +178,7 @@
             background: #4b4b4b;
         }
 
-        /* Inline code inside paragraphs */
+        /* Inline code in paragraphs */
         .blog-content p code,
         .blog-content li code {
             background-color: #f1f3f5;
@@ -382,31 +382,27 @@
         const currentUserId = '<%= locals.user ? locals.user._id : "" %>';
 
         /* =========================================================
-           WRAP CODE BLOCKS WITH BADGE + FOOTER (Screenshot Style)
+           WRAP CODE BLOCKS WITH BADGE + FOOTER + COPY BUTTON
            ========================================================= */
         function initCodeBlocks() {
             document.querySelectorAll('.blog-content pre').forEach(pre => {
-                // Skip if already wrapped
                 if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
 
                 const code = pre.querySelector('code');
                 if (!code) return;
 
-                // Detect language from class (e.g., "hljs language-html")
+                // Detect language from class: "hljs language-javascript"
                 let lang = 'code';
                 const langMatch = code.className.match(/language-(\w+)/);
                 if (langMatch) lang = langMatch[1];
 
-                // Create wrapper
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
 
-                // Language badge
                 const badge = document.createElement('div');
                 badge.className = 'code-lang-badge';
                 badge.textContent = lang;
 
-                // Footer bar
                 const footer = document.createElement('div');
                 footer.className = 'code-footer';
                 footer.innerHTML = `
@@ -416,7 +412,6 @@
                     </button>
                 `;
 
-                // Copy functionality
                 const copyBtn = footer.querySelector('.copy-btn');
                 copyBtn.addEventListener('click', async () => {
                     try {
@@ -439,7 +434,6 @@
                     }
                 });
 
-                // Wrap it up
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(badge);
                 wrapper.appendChild(pre);
@@ -606,7 +600,6 @@
             }
         }
 
-        // Initialize everything on load
         document.addEventListener('DOMContentLoaded', () => {
             initCodeBlocks();
             loadComments();
