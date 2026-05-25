@@ -1,6 +1,10 @@
-<nav class="navbar navbar-expand-lg fixed-top" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
+<!-- Navigation Bar with Dark Mode & Notifications -->
+<nav class="navbar navbar-expand-lg sticky-top" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold fs-3 text-primary" href="/">Blogify</a>
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold fs-3 text-primary" href="/">
+            <i class="fas fa-feather"></i> Blogify
+        </a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
             <span class="navbar-toggler-icon"></span>
@@ -10,46 +14,138 @@
             <!-- Left side links -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link fw-medium" href="/">Home</a>
+                    <a class="nav-link fw-medium" href="/">
+                        <i class="fas fa-home"></i> Home
+                    </a>
                 </li>
                 <% if (locals.user) { %>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="/blogs/add-new">Add Blog</a>
+                        <a class="nav-link fw-medium" href="/blogs/add-new">
+                            <i class="fas fa-plus"></i> Write
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="/user/profile">
+                            <i class="fas fa-book"></i> My Blogs
+                        </a>
                     </li>
                 <% } %>
             </ul>
 
             <!-- Right side links -->
-            <ul class="navbar-nav ms-auto align-items-center">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <!-- Search -->
+                <li class="nav-item">
+                    <form class="d-flex" method="GET" action="/">
+                        <input class="form-control form-control-sm" type="search" name="search" placeholder="Search blogs...">
+                    </form>
+                </li>
+
                 <% if (locals.user) { %>
+                    <!-- Notifications Bell -->
+                    <li class="nav-item">
+                        <button class="btn btn-link position-relative" id="notificationBell" title="Notifications" style="text-decoration: none;">
+                            <i class="fas fa-bell fa-lg" style="color: #6366f1;"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
+                                <span id="notificationCount">0</span>
+                            </span>
+                        </button>
+                    </li>
+
+                    <!-- Dark Mode Toggle -->
+                    <li class="nav-item">
+                        <button class="btn btn-link" id="themeToggle" title="Toggle Dark Mode" style="text-decoration: none;">
+                            <i class="fas fa-moon fa-lg" style="color: #6366f1;"></i>
+                        </button>
+                    </li>
+
+                    <!-- User Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img 
                                 src="<%= locals.user.profileImageURL || '/imgs/default.png' %>" 
                                 alt="<%= locals.user.fullName %>" 
-                                width="34" 
-                                height="34" 
+                                width="36" 
+                                height="36" 
                                 class="rounded-circle border border-2 border-light shadow-sm" 
                                 style="object-fit: cover;"
                                 onerror="this.src='/imgs/default.png';">
-                            <span class="fw-medium text-dark"><%= locals.user.fullName.split(" ")[0] %></span>
+                            <span class="fw-medium text-dark d-none d-md-inline">
+                                <%= locals.user.fullName.split(" ")[0] %>
+                            </span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="/user/profile">👤 View Profile</a></li>
-                            <li><a class="dropdown-item" href="#">⚙️ Settings</a></li>
-                            <% if (locals.user.role === "ADMIN") { %>
-                                <li><a class="dropdown-item text-info" href="/admin/users">🔧 Admin Panel</a></li>
-                            <% } %>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" style="border-radius: 12px;">
+                            <li class="dropdown-header">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="<%= locals.user.profileImageURL || '/imgs/default.png' %>" 
+                                         width="32" height="32" class="rounded-circle" 
+                                         onerror="this.src='/imgs/default.png';">
+                                    <div>
+                                        <p class="mb-0 fw-bold"><%= locals.user.fullName %></p>
+                                        <small class="text-muted"><%= locals.user.email %></small>
+                                    </div>
+                                </div>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger fw-medium" href="/user/logout">Logout</a></li>
+                            
+                            <li>
+                                <a class="dropdown-item" href="/user/profile">
+                                    <i class="fas fa-user-circle"></i> My Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/user/profile?tab=followers">
+                                    <i class="fas fa-users"></i> Followers
+                                    <span class="badge bg-primary ms-2"><%= locals.user.followers ? locals.user.followers.length : 0 %></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/user/profile?tab=following">
+                                    <i class="fas fa-heart"></i> Following
+                                    <span class="badge bg-primary ms-2"><%= locals.user.following ? locals.user.following.length : 0 %></span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            <li>
+                                <a class="dropdown-item" href="#" id="analyticsBtn">
+                                    <i class="fas fa-chart-line"></i> My Analytics
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="settingsBtn">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
+
+                            <% if (locals.user.role === "ADMIN") { %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-info" href="/admin/users">
+                                        <i class="fas fa-shield-alt"></i> Admin Panel
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger fw-medium" href="/user/logout">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 <% } else { %>
+                    <!-- Auth Buttons (Not Logged In) -->
                     <li class="nav-item">
-                        <a class="nav-link fw-medium px-3" href="/user/signup">Sign Up</a>
+                        <a class="nav-link fw-medium" href="/user/signup">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary rounded-pill px-4 py-2 fw-medium" href="/user/signin">Sign In</a>
+                        <a class="btn btn-primary rounded-pill px-4 py-2 fw-medium" href="/user/signin">
+                            Sign In
+                        </a>
                     </li>
                 <% } %>
             </ul>
@@ -57,12 +153,150 @@
     </div>
 </nav>
 
+<!-- Notification Center Modal -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="notificationOffcanvas" aria-labelledby="notificationOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="notificationOffcanvasLabel">
+            <i class="fas fa-bell"></i> Notifications
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0" id="notificationsList">
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-bell fa-3x mb-3"></i>
+            <p>No notifications yet</p>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-cog"></i> Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Theme</label>
+                    <select class="form-select" id="themeSelect">
+                        <option value="light" selected>Light Mode</option>
+                        <option value="dark">Dark Mode</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">
+                            Email Notifications
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Global Error Alert -->
 <% if (locals.error) { %>
-    <div class="container mt-5 pt-5">
+    <div class="container-fluid mt-5 pt-5">
         <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <%= locals.error %>
+            <i class="fas fa-exclamation-circle"></i> <%= locals.error %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
 <% } %>
+
+<script>
+    // Dark Mode Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlElement = document.documentElement;
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    // Apply saved theme on page load
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.innerHTML = '<i class="fas fa-sun fa-lg" style="color: #fbbf24;"></i>';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        themeToggle.innerHTML = isDarkMode ? 
+            '<i class="fas fa-sun fa-lg" style="color: #fbbf24;"></i>' : 
+            '<i class="fas fa-moon fa-lg" style="color: #6366f1;"></i>';
+    });
+
+    // Notifications
+    <% if (locals.user) { %>
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationOffcanvas = new bootstrap.Offcanvas(document.getElementById('notificationOffcanvas'));
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const res = await fetch('/notifications?page=1');
+                const data = await res.json();
+
+                if (data.success) {
+                    const unreadCount = data.notifications.filter(n => !n.isRead).length;
+                    document.getElementById('notificationCount').textContent = unreadCount;
+                    const badge = document.getElementById('notificationBadge');
+                    badge.style.display = unreadCount > 0 ? 'block' : 'none';
+
+                    renderNotifications(data.notifications);
+                }
+            } catch (err) {
+                console.error('Error loading notifications:', err);
+            }
+        }
+
+        function renderNotifications(notifications) {
+            const container = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-bell fa-3x mb-3"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = notifications.map(notif => `
+                <div class="p-3 border-bottom notification-item ${!notif.isRead ? 'bg-light' : ''}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${notif.title}</h6>
+                            <p class="mb-1 small">${notif.message}</p>
+                            <small class="text-muted">
+                                ${new Date(notif.createdAt).toLocaleDateString()}
+                            </small>
+                        </div>
+                        <% if (locals.user) { %>
+                            ${!notif.isRead ? '<span class="badge bg-primary ms-2">New</span>' : ''}
+                        <% } %>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        notificationBell.addEventListener('click', () => {
+            notificationOffcanvas.show();
+            loadNotifications();
+        });
+
+        // Load notifications on page load
+        loadNotifications();
+
+        // Settings Button
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
+        settingsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            settingsModal.show();
+        });
+    <% } %>
+</script>
