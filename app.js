@@ -1,3 +1,4 @@
+
 const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -41,14 +42,6 @@ const marked = new Marked(
         }
     })
 );
-
-// ====================== MONGODB CONNECTION ======================
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/blogify")
-    .then(() => console.log("âœ… MongoDB Connected"))
-    .catch(err => {
-        console.error("âŒ MongoDB Connection Error:", err.message);
-        process.exit(1);
-    });
 
 // ====================== MIDDLEWARE ======================
 app.set("view engine", "ejs");
@@ -129,7 +122,6 @@ app.locals.renderMarkdown = function(rawContent) {
     // 4. COMPILE STRUCTURES: Let marked parse blocks cleanly and auto-escape elements contextually
     return marked.parse(contentString);
 };
-// ============================================================
 
 // ====================== GRAPHQL ENDPOINT ======================
 app.use("/graphql", graphqlHTTP((req) => ({
@@ -143,7 +135,6 @@ app.use("/graphql", graphqlHTTP((req) => ({
 app.get("/", async (req, res) => {
     try {
         const Blog = require("./models/Blog");
-        // Safe fallback to req.query if queryParams is not available
         const queryParams = req.queryParams || req.query || {};
         const { search = '', sort = 'newest', page = 1, limit = 9 } = queryParams;
 
@@ -198,7 +189,7 @@ app.get("/", async (req, res) => {
             sort
         });
     } catch (error) {
-        console.error("ðŸš¨ Home Route Error:", error.message);
+        console.error("🚨 Home Route Error:", error.message);
         res.status(500).send("Internal Server Error");
     }
 });
@@ -221,11 +212,22 @@ app.use((req, res) => {
 
 // ====================== ERROR HANDLER ======================
 app.use((err, req, res, next) => {
-    console.error("ðŸš¨ Server Error:", err);
+    console.error("🚨 Server Error:", err);
     res.status(500).send("Internal Server Error");
 });
 
-app.listen(PORT, () => {
-    console.log(`âœ… Server running on port ${PORT}`);
-    console.log(`ðŸŒ Visit http://localhost:${PORT}`);
-});
+// ====================== MONGODB CONNECTION & SERVER START ======================
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/blogify")
+    .then(() => {
+        console.log("✅ MongoDB Connected");
+        app.listen(PORT, () => {
+            console.log(`✅ Server running on port ${PORT}`);
+            console.log(`🌐 Visit http://localhost:${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error("❌ MongoDB Connection Error:", err.message);
+        process.exit(1); 
+    });
+
+module.exports = app;
