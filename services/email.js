@@ -13,13 +13,21 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     console.error("Please add them and restart the server\n");
 }
 
-// ====================== GMAIL TRANSPORTER SETUP ======================
+// ====================== GMAIL TRANSPORTER SETUP (WITH POOL) ======================
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
-    }
+    },
+    pool: {
+        maxConnections: 5,
+        maxMessages: 100,
+        rateDelta: 1000,
+        rateLimit: 5
+    },
+    logger: true,
+    debug: true
 });
 
 // Verify transporter connection on startup
@@ -37,13 +45,18 @@ transporter.verify((error, success) => {
             console.error("\n⚠️  AUTHENTICATION ERROR - Your credentials are wrong!");
             console.error("\n📋 SOLUTION STEPS:");
             console.error("   1. Go to https://myaccount.google.com/security");
-            console.error("   2. Click '2-Step Verification' and enable it (if not already)");
+            console.error("   2. Enable '2-Step Verification' (if not already enabled)");
             console.error("   3. Go to https://myaccount.google.com/apppasswords");
-            console.error("   4. Select 'Mail' and 'Windows Computer'");
+            console.error("   4. Select 'Mail' and 'Android' (or your device)");
             console.error("   5. Click 'Generate'");
-            console.error("   6. Copy the 16-character password (WITHOUT SPACES)");
+            console.error("   6. Copy the 16-character password WITHOUT SPACES");
             console.error("   7. Update EMAIL_PASSWORD in .env with this password");
             console.error("   8. Restart the server\n");
+        }
+        
+        if (error.code === 'ESOCKET' || error.code === 'ETIMEDOUT') {
+            console.error("⚠️  NETWORK ERROR - Cannot connect to Gmail SMTP server");
+            console.error("   Check your internet connection or firewall settings\n");
         }
         
         console.error(`❌ Current EMAIL_USER: ${process.env.EMAIL_USER}`);
@@ -62,11 +75,11 @@ transporter.verify((error, success) => {
 // ====================== SEND OTP EMAIL ======================
 const sendOTPEmail = async (email, otp) => {
     const mailOptions = {
-        from: `"Blogify" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Your Signup OTP - Blogify',
         html: `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div style="background-color: white; border-radius: 10px; padding: 30px; text-align: center;">
                     <h2 style="color: #667eea; margin: 0 0 10px 0;">Verify Your Email</h2>
                     <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Use this code to complete your signup:</p>
@@ -93,24 +106,33 @@ const sendOTPEmail = async (email, otp) => {
     };
 
     try {
-        console.log(`\n📧 SENDING OTP`);
+        console.log(`\n📧 ========== SENDING OTP EMAIL ==========`);
         console.log(`📧 To: ${email}`);
         console.log(`📧 OTP: ${otp}`);
+        console.log(`📧 From: ${process.env.EMAIL_USER}`);
         
         const info = await transporter.sendMail(mailOptions);
         console.log(`✅ SUCCESS - OTP sent!`);
-        console.log(`✅ Message ID: ${info.messageId}\n`);
+        console.log(`✅ Message ID: ${info.messageId}`);
+        console.log(`✅ Response: ${info.response}\n`);
         return { success: true, message: 'OTP sent successfully' };
     } catch (error) {
-        console.error(`\n❌ FAILED TO SEND OTP`);
+        console.error(`\n❌ ========== FAILED TO SEND OTP EMAIL ==========`);
         console.error(`❌ To: ${email}`);
-        console.error(`❌ Error: ${error.message}`);
-        console.error(`❌ Code: ${error.code}`);
+        console.error(`❌ Error Message: ${error.message}`);
+        console.error(`❌ Error Code: ${error.code}`);
+        console.error(`❌ Error Response: ${error.response}`);
+        console.error(`❌ Full Error:`, error);
+        console.error(`❌ ============================================\n`);
         
         if (error.code === 'EAUTH') {
-            console.error(`\n⚠️  AUTHENTICATION FAILED`);
-            console.error(`Your Gmail credentials in .env are incorrect!`);
-            console.error(`Check the steps in the server console startup message\n`);
+            console.error(`⚠️  AUTHENTICATION FAILED - Gmail credentials are incorrect!`);
+            console.error(`   Check your EMAIL_USER and EMAIL_PASSWORD in .env\n`);
+        }
+        
+        if (error.code === 'ESOCKET' || error.code === 'ETIMEDOUT') {
+            console.error(`⚠️  NETWORK ERROR - Cannot reach Gmail SMTP server`);
+            console.error(`   Check your internet connection\n`);
         }
         
         throw new Error(`Failed to send OTP: ${error.message}`);
@@ -120,11 +142,11 @@ const sendOTPEmail = async (email, otp) => {
 // ====================== SEND RESET PASSWORD EMAIL ======================
 const sendResetPasswordEmail = async (email, resetLink) => {
     const mailOptions = {
-        from: `"Blogify" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Reset Your Blogify Password',
         html: `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div style="background-color: white; border-radius: 10px; padding: 30px;">
                     <h2 style="color: #667eea; margin: 0 0 10px 0; text-align: center;">Password Reset Request</h2>
                     
@@ -133,7 +155,7 @@ const sendResetPasswordEmail = async (email, resetLink) => {
                     </p>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                        <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: bold;">
                             Reset Password
                         </a>
                     </div>
@@ -163,16 +185,17 @@ const sendResetPasswordEmail = async (email, resetLink) => {
     };
 
     try {
-        console.log(`\n📧 SENDING PASSWORD RESET EMAIL`);
+        console.log(`\n📧 ========== SENDING PASSWORD RESET EMAIL ==========`);
         console.log(`📧 To: ${email}`);
         const info = await transporter.sendMail(mailOptions);
         console.log(`✅ SUCCESS - Reset email sent!`);
         console.log(`✅ Message ID: ${info.messageId}\n`);
         return { success: true, message: 'Reset link sent successfully' };
     } catch (error) {
-        console.error(`\n❌ FAILED TO SEND RESET EMAIL`);
+        console.error(`\n❌ ========== FAILED TO SEND RESET EMAIL ==========`);
         console.error(`❌ To: ${email}`);
-        console.error(`❌ Error: ${error.message}\n`);
+        console.error(`❌ Error: ${error.message}`);
+        console.error(`❌ Code: ${error.code}\n`);
         throw new Error(`Failed to send reset email: ${error.message}`);
     }
 };
@@ -180,11 +203,11 @@ const sendResetPasswordEmail = async (email, resetLink) => {
 // ====================== SEND COMMENT NOTIFICATION EMAIL ======================
 const sendCommentNotificationEmail = async (recipientEmail, data) => {
     const mailOptions = {
-        from: `"Blogify" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER,
         to: recipientEmail,
         subject: `New comment on "${data.blogTitle}"`,
         html: `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div style="background-color: white; border-radius: 10px; padding: 30px;">
                     <h2 style="color: #667eea; margin: 0 0 10px 0;">New Comment on Your Blog</h2>
                     
@@ -199,7 +222,7 @@ const sendCommentNotificationEmail = async (recipientEmail, data) => {
                     </div>
                     
                     <div style="text-align: center; margin: 20px 0;">
-                        <a href="${data.blogLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                        <a href="${data.blogLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none;">
                             View Blog & Reply
                         </a>
                     </div>
@@ -227,11 +250,11 @@ const sendCommentNotificationEmail = async (recipientEmail, data) => {
 // ====================== SEND FOLLOW NOTIFICATION EMAIL ======================
 const sendFollowNotificationEmail = async (recipientEmail, data) => {
     const mailOptions = {
-        from: `"Blogify" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER,
         to: recipientEmail,
         subject: `${data.followerName} started following you`,
         html: `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div style="background-color: white; border-radius: 10px; padding: 30px; text-align: center;">
                     <h2 style="color: #667eea; margin: 0 0 10px 0;">New Follower</h2>
                     
@@ -244,7 +267,7 @@ const sendFollowNotificationEmail = async (recipientEmail, data) => {
                     </div>
                     
                     <div style="text-align: center; margin: 20px 0;">
-                        <a href="${data.profileLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                        <a href="${data.profileLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none;">
                             View Profile
                         </a>
                     </div>
@@ -272,7 +295,7 @@ const sendFollowNotificationEmail = async (recipientEmail, data) => {
 // ====================== GENERIC SEND EMAIL ======================
 const sendEmail = async (to, subject, htmlContent) => {
     const mailOptions = {
-        from: `"Blogify" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER,
         to: to,
         subject: subject,
         html: htmlContent
