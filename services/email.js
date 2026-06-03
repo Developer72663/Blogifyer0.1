@@ -16,9 +16,12 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error, success) => {
     if (error) {
         console.error("❌ Email Service Error:", error.message);
-        console.error("❌ Full Error:", error);
+        console.error("❌ Check your email credentials in .env file");
+        console.error("❌ EMAIL_USER:", process.env.EMAIL_USER);
+        console.error("❌ EMAIL_PASSWORD is set:", !!process.env.EMAIL_PASSWORD);
     } else {
         console.log("✅ Email Service Ready - Connected to Gmail");
+        console.log("✅ Email User:", process.env.EMAIL_USER);
     }
 });
 
@@ -56,12 +59,18 @@ const sendOTPEmail = async (email, otp) => {
     };
 
     try {
+        console.log(`📧 Attempting to send OTP to: ${email}`);
+        console.log(`📧 From: ${process.env.EMAIL_USER}`);
+        
         const info = await transporter.sendMail(mailOptions);
-        console.log(`✅ OTP Email Sent to ${email}`);
+        console.log(`✅ OTP Email Sent Successfully to ${email}`);
+        console.log(`✅ Message ID: ${info.messageId}`);
         return { success: true, message: 'OTP sent successfully' };
     } catch (error) {
         console.error("❌ Failed to send OTP email:", error.message);
         console.error("❌ Full Error:", error);
+        console.error("❌ Code:", error.code);
+        console.error("❌ Command:", error.command);
         throw new Error(`Email service error: ${error.message}`);
     }
 };
@@ -112,8 +121,10 @@ const sendResetPasswordEmail = async (email, resetLink) => {
     };
 
     try {
+        console.log(`📧 Attempting to send reset password email to: ${email}`);
         const info = await transporter.sendMail(mailOptions);
         console.log(`✅ Reset Password Email Sent to ${email}`);
+        console.log(`✅ Message ID: ${info.messageId}`);
         return { success: true, message: 'Reset link sent successfully' };
     } catch (error) {
         console.error("❌ Failed to send reset password email:", error.message);
@@ -160,6 +171,7 @@ const sendCommentNotificationEmail = async (recipientEmail, data) => {
     };
 
     try {
+        console.log(`📧 Attempting to send comment notification to: ${recipientEmail}`);
         await transporter.sendMail(mailOptions);
         console.log(`✅ Comment Notification Email Sent to ${recipientEmail}`);
         return { success: true };
@@ -206,6 +218,7 @@ const sendFollowNotificationEmail = async (recipientEmail, data) => {
     };
 
     try {
+        console.log(`📧 Attempting to send follow notification to: ${recipientEmail}`);
         await transporter.sendMail(mailOptions);
         console.log(`✅ Follow Notification Email Sent to ${recipientEmail}`);
         return { success: true };
@@ -226,8 +239,10 @@ const sendEmail = async (to, subject, htmlContent) => {
     };
 
     try {
+        console.log(`📧 Attempting to send email to: ${to}`);
         const info = await transporter.sendMail(mailOptions);
         console.log(`✅ Email Sent to ${to}`);
+        console.log(`✅ Message ID: ${info.messageId}`);
         return { success: true, message: 'Email sent successfully' };
     } catch (error) {
         console.error("❌ Failed to send email:", error.message);
@@ -243,3 +258,4 @@ module.exports = {
     sendFollowNotificationEmail,
     sendEmail 
 };
+
