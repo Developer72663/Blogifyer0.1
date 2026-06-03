@@ -23,6 +23,7 @@ class NotificationService {
             return notification;
         } catch (error) {
             console.error("❌ Error creating notification:", error.message);
+            console.error("❌ Full Error:", error);
             throw error;
         }
     }
@@ -30,43 +31,65 @@ class NotificationService {
     // ====================== SEND EMAIL NOTIFICATION ======================
     static async sendEmailNotification(user, type, data) {
         try {
-            // Check user's notification settings
-            if (!user || !user.notificationSettings) {
+            // Validate user
+            if (!user) {
+                console.warn("⚠️ User is null in sendEmailNotification");
                 return;
             }
 
-            let canSend = false;
-            
-            switch(type) {
-                case 'comment':
-                    canSend = user.notificationSettings.emailOnComment;
-                    break;
-                case 'follow':
-                    canSend = user.notificationSettings.emailOnNewFollower;
-                    break;
-                case 'digest':
-                    canSend = user.notificationSettings.emailDigest;
-                    break;
-                default:
-                    canSend = true;
-            }
-
-            if (!canSend) {
+            if (!user.email) {
+                console.warn("⚠️ User email is missing in sendEmailNotification");
                 return;
             }
 
-            // Send appropriate email based on type
+            // Check user's notification settings - default to true if not set
+            if (user.notificationSettings) {
+                let canSend = false;
+                
+                switch(type) {
+                    case 'comment':
+                        canSend = user.notificationSettings.emailOnComment !== false;
+                        break;
+                    case 'follow':
+                        canSend = user.notificationSettings.emailOnNewFollower !== false;
+                        break;
+                    case 'digest':
+                        canSend = user.notificationSettings.emailDigest !== false;
+                        break;
+                    default:
+                        canSend = true;
+                }
+
+                if (!canSend) {
+                    console.log(`⚠️ Email notification disabled for ${type} for user ${user._id}`);
+                    return;
+                }
+            }
+
+            // Validate required data fields before sending
             switch(type) {
                 case 'comment':
+                    if (!data.blogTitle || !data.actorName || !data.comment) {
+                        console.warn("⚠️ Missing required fields for comment email:", { 
+                            blogTitle: !!data.blogTitle, 
+                            actorName: !!data.actorName, 
+                            comment: !!data.comment 
+                        });
+                        return;
+                    }
                     await sendCommentNotificationEmail(user.email, {
                         blogTitle: data.blogTitle,
                         actorName: data.actorName,
-                        comment: data.comment,
+                        comment: data.comment.substring(0, 100),
                         blogLink: data.blogLink || process.env.APP_URL || 'http://localhost:8000'
                     });
                     break;
 
                 case 'follow':
+                    if (!data.actorName) {
+                        console.warn("⚠️ Missing required fields for follow email");
+                        return;
+                    }
                     await sendFollowNotificationEmail(user.email, {
                         followerName: data.actorName,
                         followerImage: data.followerImage || '/imgs/default.png',
@@ -75,17 +98,21 @@ class NotificationService {
                     break;
 
                 case 'like':
+                    if (!data.blogTitle || !data.actorName) {
+                        console.warn("⚠️ Missing required fields for like email");
+                        return;
+                    }
                     await sendEmail(
                         user.email,
                         `Someone liked your blog "${data.blogTitle}"`,
                         `
                             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
-                                <div style="background-color: #f5f5f5; border-radius: 10px; padding: 30px; text-align: center;">
+                                <div style="background-color: white; border-radius: 10px; padding: 30px; text-align: center;">
                                     <h2 style="color: #667eea; margin: 0 0 10px 0;">Blog Liked!</h2>
                                     <p style="color: #666; margin: 15px 0;">
                                         <strong>${data.actorName}</strong> liked your blog <strong>"${data.blogTitle}"</strong> 👍
                                     </p>
-                                    <a href="${data.blogLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 15px;">
+                                    <a href="${data.blogLink || process.env.APP_URL || 'http://localhost:8000'}" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">
                                         View Blog
                                     </a>
                                 </div>
@@ -98,8 +125,11 @@ class NotificationService {
                     console.warn(`Unknown notification type: ${type}`);
             }
 
+            console.log(`✅ ${type} email notification sent to ${user.email}`);
+
         } catch (error) {
             console.error(`❌ Error sending ${type} email notification:`, error.message);
+            console.error("❌ Full Error:", error);
             // Don't throw - we want notifications to continue even if email fails
         }
     }
@@ -126,6 +156,7 @@ class NotificationService {
             };
         } catch (error) {
             console.error("❌ Error getting notifications:", error.message);
+            console.error("❌ Full Error:", error);
             return { 
                 notifications: [], 
                 total: 0, 
@@ -146,6 +177,7 @@ class NotificationService {
             return notification;
         } catch (error) {
             console.error("❌ Error marking notification as read:", error.message);
+            console.error("❌ Full Error:", error);
             throw error;
         }
     }
@@ -160,6 +192,7 @@ class NotificationService {
             return result;
         } catch (error) {
             console.error("❌ Error marking all notifications as read:", error.message);
+            console.error("❌ Full Error:", error);
             throw error;
         }
     }
@@ -174,6 +207,7 @@ class NotificationService {
             return count;
         } catch (error) {
             console.error("❌ Error getting unread count:", error.message);
+            console.error("❌ Full Error:", error);
             return 0;
         }
     }
@@ -185,6 +219,7 @@ class NotificationService {
             return result;
         } catch (error) {
             console.error("❌ Error deleting notification:", error.message);
+            console.error("❌ Full Error:", error);
             throw error;
         }
     }
@@ -196,6 +231,7 @@ class NotificationService {
             return result;
         } catch (error) {
             console.error("❌ Error deleting all notifications:", error.message);
+            console.error("❌ Full Error:", error);
             throw error;
         }
     }
@@ -215,6 +251,7 @@ class NotificationService {
             return notifications;
         } catch (error) {
             console.error("❌ Error getting unread notifications:", error.message);
+            console.error("❌ Full Error:", error);
             return [];
         }
     }
