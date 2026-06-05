@@ -23,9 +23,9 @@ router.post('/test-email', async (req, res) => {
     }
 
     try {
-        console.log(`\nðŸ§ª ========== TESTING EMAIL SEND ==========`);
-        console.log(`ðŸ§ª Target Email: ${email}`);
-        console.log(`ðŸ§ª Sender Email: ${process.env.EMAIL_USER}`);
+        console.log(`\n🧪 ========== TESTING EMAIL SEND ==========`);
+        console.log(`🧪 Target Email: ${email}`);
+        console.log(`🧪 Sender Email: ${process.env.EMAIL_USER}`);
         
         const testOTP = '123456';
         await sendOTPEmail(email, testOTP);
@@ -35,9 +35,9 @@ router.post('/test-email', async (req, res) => {
             message: `Test email sent to ${email}. Check your inbox!` 
         });
     } catch (error) {
-        console.error(`\nðŸ§ª ========== TEST EMAIL FAILED ==========`);
-        console.error(`ðŸ§ª Error: ${error.message}`);
-        console.error(`ðŸ§ª Full Error:`, error);
+        console.error(`\n🧪 ========== TEST EMAIL FAILED ==========`);
+        console.error(`🧪 Error: ${error.message}`);
+        console.error(`🧪 Full Error:`, error);
         
         return res.status(500).json({ 
             success: false, 
@@ -92,7 +92,7 @@ router.post('/signin', loginLimiter, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("âŒ Signin Error:", error.message);
+        console.error("❌ Signin Error:", error.message);
         res.status(401).json({ 
             success: false, 
             message: error.message || "Invalid email or password" 
@@ -153,22 +153,22 @@ router.post('/send-otp', otpLimiter, async (req, res) => {
         // Store OTP in memory
         otpStore.set(normalizedEmail, { otp, expires });
 
-        console.log(`\nðŸ” ========== OTP STORAGE ==========`);
-        console.log(`ðŸ” Email: ${normalizedEmail}`);
-        console.log(`ðŸ” OTP: ${otp}`);
-        console.log(`ðŸ” Stored OTPs Count: ${otpStore.size}`);
-        console.log(`ðŸ” ==================================\n`);
+        console.log(`\n🔐 ========== OTP STORAGE ==========`);
+        console.log(`🔐 Email: ${normalizedEmail}`);
+        console.log(`🔐 OTP: ${otp}`);
+        console.log(`🔐 Stored OTPs Count: ${otpStore.size}`);
+        console.log(`🔐 ==================================\n`);
 
         // Send OTP email with error handling
         try {
             await sendOTPEmail(normalizedEmail, otp);
         } catch (emailError) {
-            console.error("\nâŒ ========== OTP EMAIL ERROR ==========");
-            console.error(`âŒ Email: ${normalizedEmail}`);
-            console.error(`âŒ Error: ${emailError.message}`);
-            console.error(`âŒ Error Code: ${emailError.code}`);
-            console.error(`âŒ Error Response: ${emailError.response}`);
-            console.error("âŒ =====================================\n");
+            console.error("\n❌ ========== OTP EMAIL ERROR ==========");
+            console.error(`❌ Email: ${normalizedEmail}`);
+            console.error(`❌ Error: ${emailError.message}`);
+            console.error(`❌ Error Code: ${emailError.code}`);
+            console.error(`❌ Error Response: ${emailError.response}`);
+            console.error("❌ =====================================\n");
             
             return res.status(500).json({ 
                 success: false, 
@@ -182,7 +182,7 @@ router.post('/send-otp', otpLimiter, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("âŒ Send OTP Error:", error.message);
+        console.error("❌ Send OTP Error:", error.message);
         res.status(500).json({ 
             success: false, 
             message: error.message || 'Failed to send OTP. Please try again.' 
@@ -221,11 +221,11 @@ router.post('/signup', async (req, res) => {
         // Verify OTP
         const stored = otpStore.get(normalizedEmail);
         
-        console.log(`\nðŸ” ========== OTP VERIFICATION ==========`);
-        console.log(`ðŸ” Email: ${normalizedEmail}`);
-        console.log(`ðŸ” Provided OTP: ${otp}`);
-        console.log(`ðŸ” Stored OTP: ${stored ? stored.otp : 'NOT FOUND'}`);
-        console.log(`ðŸ” ==================================\n`);
+        console.log(`\n🔐 ========== OTP VERIFICATION ==========`);
+        console.log(`🔐 Email: ${normalizedEmail}`);
+        console.log(`🔐 Provided OTP: ${otp}`);
+        console.log(`🔐 Stored OTP: ${stored ? stored.otp : 'NOT FOUND'}`);
+        console.log(`🔐 ==================================\n`);
         
         if (!stored) {
             return res.status(400).json({ 
@@ -285,7 +285,7 @@ router.post('/signup', async (req, res) => {
         });
 
     } catch (error) {
-        console.error("âŒ Signup Error:", error.message);
+        console.error("❌ Signup Error:", error.message);
         res.status(500).json({ 
             success: false, 
             message: error.message || "Signup failed. Please try again." 
@@ -325,14 +325,17 @@ router.post('/forgot-password', async (req, res) => {
             expires: tokenExpires 
         });
 
-        // Build reset link
-        const resetLink = `${process.env.APP_URL}/user/reset-password?token=${resetToken}`;
+        // Build reset link - FIX: Use correct base URL without trailing slash
+        const baseUrl = (process.env.APP_URL || `http://localhost:${process.env.PORT || 8000}`).replace(/\/+$/, '');
+        const resetLink = `${baseUrl}/user/reset-password?token=${resetToken}`;
+        
+        console.log(`🔗 Generated reset link: ${resetLink}`);
 
         // Send reset password email with error handling
         try {
             await sendResetPasswordEmail(normalizedEmail, resetLink);
         } catch (emailError) {
-            console.error("âŒ Reset email failed:", emailError.message);
+            console.error("❌ Reset email failed:", emailError.message);
             return res.status(500).json({ 
                 success: false, 
                 message: `Email service error: ${emailError.message}` 
@@ -345,7 +348,7 @@ router.post('/forgot-password', async (req, res) => {
         });
 
     } catch (error) {
-        console.error("âŒ Forgot Password Error:", error.message);
+        console.error("❌ Forgot Password Error:", error.message);
         res.status(500).json({ 
             success: false, 
             message: error.message || "Failed to send reset link. Please try again." 
@@ -436,7 +439,7 @@ router.post('/reset-password', async (req, res) => {
         // Delete used token
         resetTokens.delete(token);
 
-        console.log(`ðŸ” Password reset successful for ${stored.email}`);
+        console.log(`🔐 Password reset successful for ${stored.email}`);
 
         res.json({ 
             success: true, 
@@ -445,7 +448,7 @@ router.post('/reset-password', async (req, res) => {
         });
 
     } catch (error) {
-        console.error("âŒ Reset Password Error:", error.message);
+        console.error("❌ Reset Password Error:", error.message);
         res.status(500).json({ 
             success: false, 
             message: error.message || "Failed to reset password" 
@@ -475,7 +478,7 @@ setInterval(() => {
     }
 
     if (otpCleaned > 0 || tokenCleaned > 0) {
-        console.log(`ðŸ§¹ Cleanup: Removed ${otpCleaned} expired OTPs, ${tokenCleaned} expired reset tokens`);
+        console.log(`🧹 Cleanup: Removed ${otpCleaned} expired OTPs, ${tokenCleaned} expired reset tokens`);
     }
 }, 5 * 60 * 1000); // Run every 5 minutes
 
