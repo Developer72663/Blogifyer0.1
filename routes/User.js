@@ -326,7 +326,7 @@ router.post('/forgot-password', async (req, res) => {
         });
 
         // Build reset link
-        const resetLink = `${process.env.APP_URL || 'http://localhost:8000'}/user/reset-password?token=${resetToken}`;
+        const resetLink = `${process.env.APP_URL}/user/reset-password?token=${resetToken}`;
 
         // Send reset password email with error handling
         try {
