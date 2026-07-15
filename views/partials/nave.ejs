@@ -1,32 +1,32 @@
-<!-- Navigation Bar with Dark Mode & Notifications -->
-<nav class="navbar navbar-expand-lg sticky-top" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
+<!-- Modern Navigation Bar -->
+<nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
     <div class="container-fluid">
         <!-- Brand -->
-        <a class="navbar-brand fw-bold fs-3 text-primary" href="/">
+        <a class="navbar-brand fw-bold fs-3" href="/" id="navBrand">
             <i class="fas fa-feather"></i> Blogify
         </a>
         
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <!-- Left side links -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link fw-medium" href="/">
-                        <i class="fas fa-home"></i> Home
+                    <a class="nav-link fw-medium nav-hover" href="/">
+                        <i class="fas fa-home me-1"></i> Home
                     </a>
                 </li>
                 <% if (locals.user) { %>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="/blogs/add-new">
-                            <i class="fas fa-plus"></i> Write
+                        <a class="nav-link fw-medium nav-hover" href="/blogs/add-new">
+                            <i class="fas fa-plus-circle me-1"></i> Write
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="/user/profile">
-                            <i class="fas fa-book"></i> My Blogs
+                        <a class="nav-link fw-medium nav-hover" href="/user/profile">
+                            <i class="fas fa-book-open me-1"></i> My Blogs
                         </a>
                     </li>
                 <% } %>
@@ -35,17 +35,22 @@
             <!-- Right side links -->
             <ul class="navbar-nav ms-auto align-items-center gap-2">
                 <!-- Search -->
-                <li class="nav-item">
-                    <form class="d-flex" method="GET" action="/">
-                        <input class="form-control form-control-sm" type="search" name="search" placeholder="Search blogs...">
+                <li class="nav-item d-none d-md-block">
+                    <form class="d-flex search-form" method="GET" action="/">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0 ps-3">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input class="form-control border-start-0 ps-0" type="search" name="search" placeholder="Search blogs..." aria-label="Search">
+                        </div>
                     </form>
                 </li>
 
                 <% if (locals.user) { %>
                     <!-- Notifications Bell -->
                     <li class="nav-item">
-                        <button class="btn btn-link position-relative" id="notificationBell" title="Notifications" style="text-decoration: none;">
-                            <i class="fas fa-bell fa-lg" style="color: #6366f1;"></i>
+                        <button class="btn btn-icon position-relative" id="notificationBell" title="Notifications">
+                            <i class="fas fa-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
                                 <span id="notificationCount">0</span>
                             </span>
@@ -54,101 +59,138 @@
 
                     <!-- Dark Mode Toggle -->
                     <li class="nav-item">
-                        <button class="btn btn-link" id="themeToggle" title="Toggle Dark Mode" style="text-decoration: none;">
-                            <i class="fas fa-moon fa-lg" style="color: #6366f1;"></i>
+                        <button class="btn btn-icon" id="themeToggle" title="Toggle Dark Mode">
+                            <i class="fas fa-moon" id="themeIcon"></i>
                         </button>
                     </li>
 
                     <!-- User Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 p-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="userDropdown">
                             <img 
                                 src="<%= locals.user.profileImageURL || '/imgs/default.png' %>" 
                                 alt="<%= locals.user.fullName %>" 
                                 width="36" 
                                 height="36" 
-                                class="rounded-circle border border-2 border-light shadow-sm" 
+                                class="rounded-circle border border-2 shadow-sm" 
                                 style="object-fit: cover;"
                                 onerror="this.src='/imgs/default.png';">
-                            <span class="fw-medium text-dark d-none d-md-inline">
+                            <span class="fw-medium d-none d-lg-inline">
                                 <%= locals.user.fullName.split(" ")[0] %>
                             </span>
+                            <i class="fas fa-chevron-down small opacity-50 d-none d-lg-inline"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" style="border-radius: 12px;">
-                            <li class="dropdown-header">
-                                <div class="d-flex align-items-center gap-2">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="border-radius: 16px; min-width: 280px; padding: 8px;">
+                            <!-- User Header -->
+                            <li class="dropdown-header pb-3 pt-2">
+                                <div class="d-flex align-items-center gap-3">
                                     <img src="<%= locals.user.profileImageURL || '/imgs/default.png' %>" 
-                                         width="32" height="32" class="rounded-circle" 
+                                         width="48" height="48" class="rounded-circle shadow-sm" 
+                                         style="object-fit: cover;"
                                          onerror="this.src='/imgs/default.png';">
                                     <div>
-                                        <p class="mb-0 fw-bold"><%= locals.user.fullName %></p>
+                                        <p class="mb-0 fw-bold fs-6"><%= locals.user.fullName %></p>
                                         <small class="text-muted"><%= locals.user.email %></small>
                                     </div>
                                 </div>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider my-2"></li>
                             
+                            <!-- Profile Links -->
                             <li>
-                                <a class="dropdown-item" href="/user/profile">
-                                    <i class="fas fa-user-circle"></i> My Profile
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3" href="/user/profile">
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
+                                    <span>My Profile</span>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/user/profile?tab=followers">
-                                    <i class="fas fa-users"></i> Followers
-                                    <span class="badge bg-primary ms-2"><%= locals.user.followers ? locals.user.followers.length : 0 %></span>
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3" href="/user/profile?tab=followers">
+                                    <div class="icon-box bg-success bg-opacity-10 text-success">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>Followers</span>
+                                        <span class="badge bg-success rounded-pill"><%= locals.user.followers ? locals.user.followers.length : 0 %></span>
+                                    </div>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/user/profile?tab=following">
-                                    <i class="fas fa-heart"></i> Following
-                                    <span class="badge bg-primary ms-2"><%= locals.user.following ? locals.user.following.length : 0 %></span>
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3" href="/user/profile?tab=following">
+                                    <div class="icon-box bg-info bg-opacity-10 text-info">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>Following</span>
+                                        <span class="badge bg-info rounded-pill"><%= locals.user.following ? locals.user.following.length : 0 %></span>
+                                    </div>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="/notifications">
-                                    <i class="fas fa-bell"></i> All Notifications
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3" href="/notifications">
+                                    <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>Notifications</span>
+                                        <span class="badge bg-warning rounded-pill" id="dropdownNotifBadge" style="display: none;">0</span>
+                                    </div>
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
                             
+                            <li><hr class="dropdown-divider my-2"></li>
+                            
+                            <!-- Tools -->
                             <li>
-                                <a class="dropdown-item" href="#" id="analyticsBtn">
-                                    <i class="fas fa-chart-line"></i> My Analytics
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3" href="#" id="analyticsBtn">
+                                    <div class="icon-box bg-secondary bg-opacity-10 text-secondary">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <span>My Analytics</span>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#" id="settingsBtn">
-                                    <i class="fas fa-cog"></i> Settings
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3" href="#" id="settingsBtn">
+                                    <div class="icon-box bg-secondary bg-opacity-10 text-secondary">
+                                        <i class="fas fa-cog"></i>
+                                    </div>
+                                    <span>Settings</span>
                                 </a>
                             </li>
 
                             <% if (locals.user.role === "ADMIN") { %>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider my-2"></li>
                                 <li>
-                                    <a class="dropdown-item text-info" href="/admin/users">
-                                        <i class="fas fa-shield-alt"></i> Admin Panel
+                                    <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 text-info" href="/admin/users">
+                                        <div class="icon-box bg-info bg-opacity-10">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <span>Admin Panel</span>
                                     </a>
                                 </li>
                             <% } %>
 
-                            <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider my-2"></li>
                             <li>
-                                <a class="dropdown-item text-danger fw-medium" href="/user/logout">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-3 text-danger" href="/user/logout">
+                                    <div class="icon-box bg-danger bg-opacity-10">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                    </div>
+                                    <span class="fw-medium">Logout</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                 <% } else { %>
-                    <!-- Auth Buttons (Not Logged In) -->
+                    <!-- Auth Buttons -->
                     <li class="nav-item">
                         <a class="nav-link fw-medium" href="/user/signup">
-                            <i class="fas fa-user-plus"></i> Sign Up
+                            <i class="fas fa-user-plus me-1"></i> Sign Up
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary rounded-pill px-4 py-2 fw-medium" href="/user/signin">
+                        <a class="btn btn-primary rounded-pill px-4 fw-medium shadow-sm" href="/user/signin">
                             Sign In
                         </a>
                     </li>
@@ -160,51 +202,55 @@
 
 <!-- Notification Center Offcanvas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="notificationOffcanvas" aria-labelledby="notificationOffcanvasLabel" style="width: 420px; max-width: 90vw;">
-    <div class="offcanvas-header border-bottom">
+    <div class="offcanvas-header border-bottom bg-light">
         <h5 class="offcanvas-title fw-bold" id="notificationOffcanvasLabel">
-            <i class="fas fa-bell text-primary"></i> Notifications
+            <i class="fas fa-bell text-primary me-2"></i> Notifications
         </h5>
         <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary" id="markAllReadBtn" onclick="markAllReadOffcanvas()">
-                <i class="fas fa-check-double"></i> Mark all read
+            <button class="btn btn-sm btn-outline-primary rounded-pill" id="markAllReadBtn" onclick="markAllReadOffcanvas()">
+                <i class="fas fa-check-double me-1"></i> Mark all read
             </button>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
     </div>
-    <div class="offcanvas-body p-0" id="notificationsList" style="overflow-y: auto;">
+    <div class="offcanvas-body p-0" id="notificationsList" style="overflow-y: auto; background: #f8f9fa;">
         <div class="text-center py-5 text-muted" id="notifEmptyState">
             <i class="fas fa-bell fa-3x mb-3 opacity-25"></i>
-            <p>No notifications yet</p>
+            <p class="mb-1">No notifications yet</p>
             <small>When someone interacts with your blogs, you'll see it here.</small>
         </div>
     </div>
-    <div class="offcanvas-footer border-top p-2 text-center">
-        <a href="/notifications" class="btn btn-link text-decoration-none fw-medium">
-            <i class="fas fa-external-link-alt"></i> View All Notifications
+    <div class="offcanvas-footer border-top p-3 text-center bg-white">
+        <a href="/notifications" class="btn btn-outline-primary rounded-pill px-4 fw-medium text-decoration-none">
+            <i class="fas fa-external-link-alt me-2"></i> View All Notifications
         </a>
     </div>
 </div>
 
 <!-- Settings Modal -->
 <div class="modal fade" id="settingsModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-cog"></i> Settings</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-cog text-primary me-2"></i> Settings</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Theme</label>
-                    <select class="form-select" id="themeSelect">
-                        <option value="light" selected>Light Mode</option>
-                        <option value="dark">Dark Mode</option>
-                    </select>
+                <div class="mb-4">
+                    <label class="form-label fw-medium mb-2">Appearance</label>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary flex-fill py-2 rounded-3" id="themeLightBtn">
+                            <i class="fas fa-sun me-2"></i> Light
+                        </button>
+                        <button class="btn btn-outline-secondary flex-fill py-2 rounded-3" id="themeDarkBtn">
+                            <i class="fas fa-moon me-2"></i> Dark
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                        <label class="form-check-label" for="emailNotifications">
+                        <label class="form-check-label fw-medium" for="emailNotifications">
                             Email Notifications
                         </label>
                     </div>
@@ -217,31 +263,308 @@
 <!-- Global Error Alert -->
 <% if (locals.error) { %>
     <div class="container-fluid mt-5 pt-5">
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <i class="fas fa-exclamation-circle"></i> <%= locals.error %>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> <%= locals.error %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
 <% } %>
 
+<style>
+    /* Navbar Base Styles */
+    #mainNavbar {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.05);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        padding: 0.5rem 0;
+    }
+
+    #navBrand {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.5px;
+    }
+
+    /* Nav Links */
+    .nav-hover {
+        position: relative;
+        padding: 0.5rem 1rem !important;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .nav-hover:hover {
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1 !important;
+    }
+
+    /* Search Form */
+    .search-form .input-group {
+        border-radius: 50px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.08);
+        background: rgba(0,0,0,0.02);
+        transition: all 0.2s ease;
+        width: 240px;
+    }
+
+    .search-form .input-group:focus-within {
+        border-color: #6366f1;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        width: 300px;
+    }
+
+    .search-form .input-group-text {
+        border: none;
+        padding-right: 0;
+    }
+
+    .search-form .form-control {
+        border: none;
+        background: transparent;
+        font-size: 0.9rem;
+    }
+
+    .search-form .form-control:focus {
+        box-shadow: none;
+    }
+
+    /* Icon Buttons */
+    .btn-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6366f1;
+        background: transparent;
+        border: none;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .btn-icon:hover {
+        background: rgba(99, 102, 241, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .btn-icon i {
+        font-size: 1.1rem;
+    }
+
+    /* Notification Badge */
+    #notificationBadge {
+        font-size: 0.65rem;
+        padding: 0.25em 0.5em;
+        transform: translate(-30%, -30%) !important;
+    }
+
+    /* User Dropdown */
+    #userDropdown {
+        border-radius: 50px;
+        padding: 4px 12px 4px 4px !important;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    #userDropdown:hover {
+        background: rgba(99, 102, 241, 0.08);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    #userDropdown img {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu {
+        animation: dropdownSlide 0.2s ease;
+    }
+
+    @keyframes dropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .dropdown-item {
+        transition: all 0.15s ease;
+        margin: 2px 8px;
+        width: auto;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(99, 102, 241, 0.08) !important;
+        transform: translateX(3px);
+    }
+
+    .icon-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode #mainNavbar {
+        background: rgba(15, 15, 26, 0.85);
+        border-bottom-color: rgba(255,255,255,0.05);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    body.dark-mode #mainNavbar .nav-link {
+        color: rgba(255,255,255,0.8) !important;
+    }
+
+    body.dark-mode #mainNavbar .nav-hover:hover {
+        background: rgba(129, 140, 248, 0.15);
+        color: #818cf8 !important;
+    }
+
+    body.dark-mode .search-form .input-group {
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    body.dark-mode .search-form .input-group:focus-within {
+        background: rgba(255,255,255,0.08);
+        border-color: #818cf8;
+    }
+
+    body.dark-mode .search-form .form-control {
+        color: white;
+    }
+
+    body.dark-mode .search-form .form-control::placeholder {
+        color: rgba(255,255,255,0.4);
+    }
+
+    body.dark-mode .btn-icon {
+        color: #818cf8;
+    }
+
+    body.dark-mode .btn-icon:hover {
+        background: rgba(129, 140, 248, 0.15);
+    }
+
+    body.dark-mode #userDropdown {
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    body.dark-mode #userDropdown:hover {
+        background: rgba(129, 140, 248, 0.15);
+        border-color: rgba(129, 140, 248, 0.3);
+    }
+
+    body.dark-mode .dropdown-menu {
+        background: #1a1a2e;
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    body.dark-mode .dropdown-header {
+        color: white;
+    }
+
+    body.dark-mode .dropdown-item {
+        color: rgba(255,255,255,0.85);
+    }
+
+    body.dark-mode .dropdown-item:hover {
+        background: rgba(129, 140, 248, 0.15) !important;
+        color: white;
+    }
+
+    body.dark-mode .dropdown-divider {
+        border-color: rgba(255,255,255,0.1);
+    }
+
+    body.dark-mode .text-muted {
+        color: rgba(255,255,255,0.5) !important;
+    }
+
+    body.dark-mode .text-dark {
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 991px) {
+        .search-form .input-group,
+        .search-form .input-group:focus-within {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        #mainNavbar .navbar-collapse {
+            background: rgba(255,255,255,0.98);
+            border-radius: 16px;
+            margin-top: 8px;
+            padding: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode #mainNavbar .navbar-collapse {
+            background: rgba(26, 26, 46, 0.98);
+        }
+    }
+</style>
+
 <script>
     // Dark Mode Toggle
     const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
     const savedTheme = localStorage.getItem('theme') || 'light';
 
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        themeToggle.innerHTML = '<i class="fas fa-sun fa-lg" style="color: #fbbf24;"></i>';
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.className = 'fas fa-sun';
+            themeToggle.style.color = '#fbbf24';
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeIcon.className = 'fas fa-moon';
+            themeToggle.style.color = '#6366f1';
+        }
     }
 
+    applyTheme(savedTheme);
+
     themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        themeToggle.innerHTML = isDarkMode ? 
-            '<i class="fas fa-sun fa-lg" style="color: #fbbf24;"></i>' : 
-            '<i class="fas fa-moon fa-lg" style="color: #6366f1;"></i>';
+        const isDark = document.body.classList.contains('dark-mode');
+        const newTheme = isDark ? 'light' : 'dark';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
     });
+
+    // Settings Modal Theme Buttons
+    const themeLightBtn = document.getElementById('themeLightBtn');
+    const themeDarkBtn = document.getElementById('themeDarkBtn');
+
+    if (themeLightBtn && themeDarkBtn) {
+        themeLightBtn.addEventListener('click', () => {
+            localStorage.setItem('theme', 'light');
+            applyTheme('light');
+        });
+        themeDarkBtn.addEventListener('click', () => {
+            localStorage.setItem('theme', 'dark');
+            applyTheme('dark');
+        });
+    }
 
     // ====================== NOTIFICATIONS SYSTEM ======================
     <% if (locals.user) { %>
@@ -256,11 +579,19 @@
                 if (data.success) {
                     const badge = document.getElementById('notificationBadge');
                     const count = document.getElementById('notificationCount');
+                    const dropdownBadge = document.getElementById('dropdownNotifBadge');
+                    
                     if (data.unreadCount > 0) {
-                        count.textContent = data.unreadCount > 99 ? '99+' : data.unreadCount;
+                        const displayCount = data.unreadCount > 99 ? '99+' : data.unreadCount;
+                        count.textContent = displayCount;
                         badge.style.display = 'block';
+                        if (dropdownBadge) {
+                            dropdownBadge.textContent = displayCount;
+                            dropdownBadge.style.display = 'inline-block';
+                        }
                     } else {
                         badge.style.display = 'none';
+                        if (dropdownBadge) dropdownBadge.style.display = 'none';
                     }
                 }
             } catch (err) {
@@ -277,17 +608,6 @@
 
                 if (data.success) {
                     currentNotifications = data.notifications;
-                    const unreadCount = data.notifications.filter(n => !n.isRead).length;
-                    
-                    const badge = document.getElementById('notificationBadge');
-                    const count = document.getElementById('notificationCount');
-                    if (unreadCount > 0) {
-                        count.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                        badge.style.display = 'block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-
                     renderNotifications(data.notifications);
                 }
             } catch (err) {
@@ -302,7 +622,7 @@
                 container.innerHTML = `
                     <div class="text-center py-5 text-muted" id="notifEmptyState">
                         <i class="fas fa-bell fa-3x mb-3 opacity-25"></i>
-                        <p>No notifications yet</p>
+                        <p class="mb-1">No notifications yet</p>
                         <small>When someone interacts with your blogs, you'll see it here.</small>
                     </div>
                 `;
@@ -356,7 +676,7 @@
                 }
 
                 return `
-                    <div class="notification-item p-3 border-bottom ${isUnread ? 'bg-primary bg-opacity-10' : ''}" 
+                    <div class="notification-item p-3 border-bottom ${isUnread ? 'bg-white' : ''}" 
                          data-id="${notif._id}" 
                          style="cursor: pointer; transition: all 0.2s;"
                          onclick="handleNotificationClick('${notif._id}', '${notif.type}', '${blogId}', '${notif.actor ? notif.actor._id : ''}')">
@@ -370,33 +690,34 @@
                                      style="object-fit: cover; border: 2px solid ${isUnread ? iconColor : '#e5e7eb'};"
                                      onerror="this.src='/imgs/default.png';">
                                 <span class="position-absolute bottom-0 end-0 translate-middle-y badge rounded-circle p-1" 
-                                      style="background: ${iconColor}; font-size: 0.6rem;">
+                                      style="background: ${iconColor}; font-size: 0.6rem; border: 2px solid white;">
                                     <i class="fas ${iconClass} text-white" style="font-size: 0.5rem;"></i>
                                 </span>
                             </div>
                             <div class="flex-grow-1" style="min-width: 0;">
-                                <p class="mb-1 small" style="line-height: 1.5;">
-                                    <strong class="text-dark">${actorName}</strong> ${actionText}
+                                <p class="mb-1 small fw-medium" style="line-height: 1.5; color: #1a1a2e;">
+                                    ${actorName} <span class="fw-normal text-muted">${actionText}</span>
                                 </p>
-                                ${blogTitle ? `<p class="mb-1 text-muted small text-truncate" style="font-size: 0.8rem;"><i class="fas fa-book-open me-1"></i>${blogTitle}</p>` : ''}
+                                ${blogTitle ? `<p class="mb-1 text-muted small text-truncate" style="font-size: 0.8rem;"><i class="fas fa-book-open me-1 opacity-50"></i>${blogTitle}</p>` : ''}
                                 <div class="d-flex align-items-center gap-2">
                                     <small class="text-muted" style="font-size: 0.75rem;">${timeAgo}</small>
                                     ${isUnread ? '<span class="badge bg-primary rounded-pill" style="font-size: 0.6rem;">New</span>' : ''}
                                 </div>
                             </div>
                             <div class="flex-shrink-0">
-                                <button class="btn btn-sm btn-link text-danger p-1" 
+                                <button class="btn btn-sm btn-link text-danger p-1 opacity-50 hover-opacity-100" 
                                         onclick="event.stopPropagation(); deleteNotification('${notif._id}', this)"
-                                        title="Delete">
+                                        title="Delete"
+                                        style="transition: opacity 0.2s;">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </div>
                         ${blogImg ? `
-                            <div class="mt-2 ms-5">
+                            <div class="mt-2 ms-5 rounded-3 overflow-hidden">
                                 <img src="${blogImg}" 
-                                     class="rounded" 
-                                     style="width: 100%; height: 100px; object-fit: cover;" 
+                                     class="w-100" 
+                                     style="height: 100px; object-fit: cover;" 
                                      onerror="this.style.display='none';">
                             </div>
                         ` : ''}
@@ -434,7 +755,8 @@
                 const data = await res.json();
                 if (data.success) {
                     document.querySelectorAll('.notification-item').forEach(item => {
-                        item.classList.remove('bg-primary', 'bg-opacity-10');
+                        item.classList.remove('bg-white');
+                        item.style.background = 'transparent';
                         const badge = item.querySelector('.badge.bg-primary');
                         if (badge) badge.remove();
                     });
@@ -447,9 +769,9 @@
             if (!confirm('Delete this notification?')) return;
             
             const item = btn.closest('.notification-item');
-            item.style.transition = 'all 0.3s';
+            item.style.transition = 'all 0.3s ease';
             item.style.opacity = '0';
-            item.style.transform = 'translateX(100px)';
+            item.style.transform = 'translateX(30px)';
             
             try {
                 const res = await fetch(`/notifications/${id}`, { method: 'DELETE' });
@@ -462,7 +784,7 @@
                             document.getElementById('notificationsList').innerHTML = `
                                 <div class="text-center py-5 text-muted" id="notifEmptyState">
                                     <i class="fas fa-bell fa-3x mb-3 opacity-25"></i>
-                                    <p>No notifications yet</p>
+                                    <p class="mb-1">No notifications yet</p>
                                     <small>When someone interacts with your blogs, you'll see it here.</small>
                                 </div>
                             `;
@@ -483,6 +805,7 @@
         loadUnreadCount();
         setInterval(loadUnreadCount, 30000);
 
+        // Settings Button
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
         settingsBtn.addEventListener('click', (e) => {
