@@ -43,7 +43,6 @@
             line-height: 1.6;
         }
 
-        /* ===== PROFILE HEADER ===== */
         .profile-header {
             background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
             padding: 60px 0 100px;
@@ -81,7 +80,6 @@
             z-index: 1;
         }
 
-        /* ===== PROFILE CARD ===== */
         .profile-card {
             max-width: 900px;
             margin: -60px auto 0;
@@ -173,7 +171,6 @@
             text-decoration: underline;
         }
 
-        /* ===== STATS BAR ===== */
         .stats-bar {
             display: flex;
             gap: 0;
@@ -208,7 +205,6 @@
             margin-top: 4px;
         }
 
-        /* ===== ACTION BUTTONS ===== */
         .profile-actions {
             display: flex;
             gap: 10px;
@@ -254,7 +250,6 @@
             color: white;
         }
 
-        /* ===== TABS ===== */
         .profile-tabs {
             max-width: 900px;
             margin: 32px auto 0;
@@ -298,7 +293,6 @@
             color: var(--text);
         }
 
-        /* ===== BLOGS GRID ===== */
         .blogs-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -369,7 +363,6 @@
             gap: 4px;
         }
 
-        /* ===== FOLLOWERS/FOLLOWING LISTS ===== */
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -413,7 +406,6 @@
             color: var(--text-secondary);
         }
 
-        /* ===== LOCKED MESSAGE ===== */
         .locked-message {
             text-align: center;
             padding: 60px 20px;
@@ -432,7 +424,6 @@
             color: var(--text);
         }
 
-        /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -445,7 +436,6 @@
             opacity: 0.3;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .profile-header {
                 padding: 40px 0 80px;
@@ -494,7 +484,7 @@
     </style>
 </head>
 <body>
-    <%- include('partials/nav') %>
+    <%- include('./partials/nave') %>
 
     <!-- Profile Header Background -->
     <div class="profile-header">
@@ -517,7 +507,13 @@
                             <i class="fas fa-shield-alt" style="color: var(--primary); font-size: 0.6em;" title="Admin"></i>
                         <% } %>
                     </h1>
-                    <p class="profile-handle">@<%= profileUser.email.split('@')[0] %></p>
+                    <p class="profile-handle">
+                        <% if (profileUser.email) { %>
+                            @<%= profileUser.email.split('@')[0] %>
+                        <% } else { %>
+                            @user
+                        <% } %>
+                    </p>
                     
                     <% if (profileUser.bio) { %>
                         <p class="profile-bio"><%= profileUser.bio %></p>
@@ -545,12 +541,12 @@
                                 <i class="fas fa-pen"></i> Edit Profile
                             </a>
                         <% } else if (user) { %>
-                            <button class="btn <%= isFollowing ? 'btn-success' : 'btn-primary' %>" 
-                                    id="followBtn"
-                                    onclick="toggleFollow('<%= profileUser._id %>')">
-                                <i class="fas <%= isFollowing ? 'fa-check' : 'fa-plus' %>"></i>
-                                <%= isFollowing ? 'Following' : 'Follow' %>
-                            </button>
+                            <form action="/follow/<%= profileUser._id %>/follow" method="POST" style="display: inline;">
+                                <button type="submit" class="btn <%= isFollowing ? 'btn-success' : 'btn-primary' %>">
+                                    <i class="fas <%= isFollowing ? 'fa-check' : 'fa-plus' %>"></i>
+                                    <%= isFollowing ? 'Following' : 'Follow' %>
+                                </button>
+                            </form>
                         <% } else { %>
                             <a href="/user/signin" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> Follow
@@ -639,7 +635,13 @@
                                      alt="<%= follower.fullName %>"
                                      onerror="this.src='/imgs/default.png';">
                                 <h4><%= follower.fullName %></h4>
-                                <p>@<%= follower.email ? follower.email.split('@')[0] : 'user' %></p>
+                                <p>
+                                    <% if (follower.email) { %>
+                                        @<%= follower.email.split('@')[0] %>
+                                    <% } else { %>
+                                        @user
+                                    <% } %>
+                                </p>
                             </a>
                         <% }) %>
                     </div>
@@ -670,7 +672,13 @@
                                      alt="<%= following.fullName %>"
                                      onerror="this.src='/imgs/default.png';">
                                 <h4><%= following.fullName %></h4>
-                                <p>@<%= following.email ? following.email.split('@')[0] : 'user' %></p>
+                                <p>
+                                    <% if (following.email) { %>
+                                        @<%= following.email.split('@')[0] %>
+                                    <% } else { %>
+                                        @user
+                                    <% } %>
+                                </p>
                             </a>
                         <% }) %>
                     </div>
@@ -694,45 +702,10 @@
     <script>
         // Tab Switching
         function switchTab(tabName) {
-            // Update buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.tab-btn').classList.add('active');
-
-            // Update content
             document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
             document.getElementById('tab-' + tabName).style.display = 'block';
-        }
-
-        // Follow/Unfollow
-        async function toggleFollow(userId) {
-            const btn = document.getElementById('followBtn');
-            const isFollowing = btn.classList.contains('btn-success');
-
-            try {
-                const res = await fetch(`/follow/${isFollowing ? 'unfollow' : 'follow'}/${userId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    // Toggle button state
-                    if (isFollowing) {
-                        btn.classList.remove('btn-success');
-                        btn.classList.add('btn-primary');
-                        btn.innerHTML = '<i class="fas fa-plus"></i> Follow';
-                    } else {
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-success');
-                        btn.innerHTML = '<i class="fas fa-check"></i> Following';
-                    }
-                    
-                    // Reload page after short delay to update mutual follow status
-                    setTimeout(() => location.reload(), 500);
-                }
-            } catch (e) {
-                console.error('Follow error:', e);
-            }
         }
     </script>
 </body>
