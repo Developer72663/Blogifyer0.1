@@ -10,7 +10,8 @@
     <%# ==================== LOGGED IN: Show Blog Content ==================== %>
     <% if (locals.user) { %>
 
-        <main class="container my-5">
+        <main class="container my-5" style="margin-top: 10px;">
+
 
             <%# Featured Blogs Section %>
             <% if (typeof featuredBlogs !== 'undefined' && featuredBlogs.length > 0) { %>
