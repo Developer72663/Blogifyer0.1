@@ -5,39 +5,27 @@ const NotificationService = require("../services/notificationService");
 
 router.use(restrictToLoggedInUserOnly);
 
-// ====================== GET NOTIFICATIONS PAGE (EJS) ======================
-router.get("/page", async (req, res) => {
-  try {
-    const { page = 1 } = req.query;
-    const result = await NotificationService.getUserNotifications(
-      req.user._id,
-      15,
-      page
-    );
-
-    res.render("notification", {
-      user: req.user,
-      notifications: result.notifications,
-      total: result.total,
-      pages: result.pages,
-      currentPage: parseInt(page),
-      title: "Notifications"
-    });
-  } catch (error) {
-    console.error("Error rendering notifications page:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-// ====================== GET USER NOTIFICATIONS (JSON API) ======================
+// ====================== GET NOTIFICATIONS (HTML or JSON) ======================
 router.get("/", async (req, res) => {
   try {
-    const { page = 1 } = req.query;
+    const { page = 1, limit = 20 } = req.query;
     const result = await NotificationService.getUserNotifications(
       req.user._id,
-      10,
-      page
+      parseInt(limit),
+      parseInt(page)
     );
+
+    // Content negotiation: Browser -> HTML page, API/JS -> JSON
+    const accept = req.headers.accept || "";
+    if (accept.includes("text/html")) {
+      return res.render("notification", {
+        user: req.user,
+        notifications: result.notifications,
+        total: result.total,
+        pages: result.pages,
+        currentPage: parseInt(page)
+      });
+    }
 
     res.json({
       success: true,
@@ -85,18 +73,14 @@ router.put("/all/read", async (req, res) => {
   }
 });
 
-// ====================== DELETE NOTIFICATION (Swipe to Delete) ======================
+// ====================== DELETE NOTIFICATION ======================
 router.delete("/:notificationId", async (req, res) => {
   try {
-    const success = await NotificationService.deleteNotification(
-      req.params.notificationId,
-      req.user._id
-    );
-    
-    if (!success) {
+    const { notificationId } = req.params;
+    const deleted = await NotificationService.deleteNotification(notificationId, req.user._id);
+    if (!deleted) {
       return res.status(404).json({ success: false, message: "Notification not found" });
     }
-    
     res.json({ success: true, message: "Notification deleted" });
   } catch (error) {
     console.error("Error deleting notification:", error);
