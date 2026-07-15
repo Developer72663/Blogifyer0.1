@@ -68,15 +68,18 @@
                                     <div class="d-flex align-items-center justify-content-between mt-3">
                                         <div class="d-flex align-items-center gap-2">
                                             <% if (blog.createdBy) { %>
-                                                <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
-                                                     alt="<%= blog.createdBy.fullName %>" 
-                                                     width="32" height="32" 
-                                                     class="rounded-circle"
-                                                     onerror="this.src='/imgs/default.png';">
-                                                <div>
-                                                    <small class="fw-bold d-block"><%= blog.createdBy.fullName %></small>
-                                                    <small class="text-muted"><%= blog.readingTime %> min read</small>
-                                                </div>
+                                                <!-- WRAPPED IN LINK TO PROFILE -->
+                                                <a href="/profile/<%= blog.createdBy._id %>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                                                    <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
+                                                         alt="<%= blog.createdBy.fullName %>" 
+                                                         width="32" height="32" 
+                                                         class="rounded-circle"
+                                                         onerror="this.src='/imgs/default.png';">
+                                                    <div>
+                                                        <small class="fw-bold d-block"><%= blog.createdBy.fullName %></small>
+                                                        <small class="text-muted"><%= blog.readingTime %> min read</small>
+                                                    </div>
+                                                </a>
                                             <% } else { %>
                                                 <img src="/imgs/default.png" 
                                                      alt="Unknown Author" 
@@ -204,19 +207,22 @@
                                     <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top">
                                         <div class="d-flex align-items-center gap-2">
                                             <% if (blog.createdBy) { %>
-                                                <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
-                                                     alt="<%= blog.createdBy.fullName %>" 
-                                                     width="32" height="32" 
-                                                     class="rounded-circle"
-                                                     onerror="this.src='/imgs/default.png';">
-                                                <div>
-                                                    <small class="fw-bold d-block"><%= blog.createdBy.fullName %></small>
-                                                    <small class="text-muted">
-                                                        <% if (blog.readingTime) { %>
-                                                            <%= blog.readingTime %> min read
-                                                        <% } %>
-                                                    </small>
-                                                </div>
+                                                <!-- WRAPPED IN LINK TO PROFILE -->
+                                                <a href="/profile/<%= blog.createdBy._id %>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                                                    <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
+                                                         alt="<%= blog.createdBy.fullName %>" 
+                                                         width="32" height="32" 
+                                                         class="rounded-circle"
+                                                         onerror="this.src='/imgs/default.png';">
+                                                    <div>
+                                                        <small class="fw-bold d-block"><%= blog.createdBy.fullName %></small>
+                                                        <small class="text-muted">
+                                                            <% if (blog.readingTime) { %>
+                                                                <%= blog.readingTime %> min read
+                                                            <% } %>
+                                                        </small>
+                                                    </div>
+                                                </a>
                                             <% } else { %>
                                                 <img src="/imgs/default.png" 
                                                      alt="Unknown Author" 
@@ -278,4 +284,3 @@
     <%- include("./partials/scripts") %>
 </body>
 </html>
-
