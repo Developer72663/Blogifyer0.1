@@ -24,6 +24,7 @@ const GoogleAuthRoute = require("./routes/GoogleAuthentication");
 const BlogRoute = require("./routes/Blog");
 const AdminRoute = require("./routes/Admin");
 const ProfileRoute = require("./routes/Profile");
+const PublicProfileRoute = require("./routes/publicProfile");
 const CommentRoute = require("./routes/Comment");
 const FollowRoute = require("./routes/Follow");
 const NotificationRoute = require("./routes/Notification");
@@ -216,6 +217,7 @@ app.get("/", async (req, res) => {
 // ====================== ROUTES ======================
 app.use("/admin", AdminRoute);
 app.use("/user/profile", ProfileRoute);
+app.use("/profile", PublicProfileRoute);
 app.use("/user", UserRoute);
 app.use("/user", GoogleAuthRoute);
 app.use("/blogs", BlogRoute);
