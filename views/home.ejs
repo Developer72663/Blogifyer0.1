@@ -68,7 +68,7 @@
                                     <div class="d-flex align-items-center justify-content-between mt-3">
                                         <div class="d-flex align-items-center gap-2">
                                             <% if (blog.createdBy) { %>
-                                                <!-- WRAPPED IN LINK TO PROFILE -->
+                                                <!-- CLICKABLE AUTHOR PROFILE -->
                                                 <a href="/profile/<%= blog.createdBy._id %>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
                                                     <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
                                                          alt="<%= blog.createdBy.fullName %>" 
@@ -207,7 +207,7 @@
                                     <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top">
                                         <div class="d-flex align-items-center gap-2">
                                             <% if (blog.createdBy) { %>
-                                                <!-- WRAPPED IN LINK TO PROFILE -->
+                                                <!-- CLICKABLE AUTHOR PROFILE -->
                                                 <a href="/profile/<%= blog.createdBy._id %>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
                                                     <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
                                                          alt="<%= blog.createdBy.fullName %>" 
