@@ -229,7 +229,6 @@
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme') || 'light';
 
-    // Apply saved theme on page load
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
         themeToggle.innerHTML = '<i class="fas fa-sun fa-lg" style="color: #fbbf24;"></i>';
@@ -247,11 +246,9 @@
     // ====================== NOTIFICATIONS SYSTEM ======================
     <% if (locals.user) { %>
         const notificationBell = document.getElementById('notificationBell');
-        const notificationOffcanvasEl = document.getElementById('notificationOffcanvas');
-        const notificationOffcanvas = new bootstrap.Offcanvas(notificationOffcanvasEl);
+        const notificationOffcanvas = new bootstrap.Offcanvas(document.getElementById('notificationOffcanvas'));
         let currentNotifications = [];
 
-        // Load unread count on page load
         async function loadUnreadCount() {
             try {
                 const res = await fetch('/notifications/unread/count');
@@ -271,7 +268,6 @@
             }
         }
 
-        // Load notifications into offcanvas
         async function loadNotifications() {
             try {
                 const res = await fetch('/notifications?page=1&limit=15', {
@@ -283,7 +279,6 @@
                     currentNotifications = data.notifications;
                     const unreadCount = data.notifications.filter(n => !n.isRead).length;
                     
-                    // Update badge
                     const badge = document.getElementById('notificationBadge');
                     const count = document.getElementById('notificationCount');
                     if (unreadCount > 0) {
@@ -302,7 +297,6 @@
 
         function renderNotifications(notifications) {
             const container = document.getElementById('notificationsList');
-            const emptyState = document.getElementById('notifEmptyState');
 
             if (notifications.length === 0) {
                 container.innerHTML = `
@@ -421,26 +415,12 @@
             return 'Just now';
         }
 
-        // Handle notification click - mark read + navigate
         async function handleNotificationClick(id, type, blogId, actorId) {
-            // Mark as read
             try {
                 await fetch(`/notifications/${id}/read`, { method: 'PUT' });
-                
-                // Update UI
-                const item = document.querySelector(`[data-id="${id}"]`);
-                if (item) {
-                    item.classList.remove('bg-primary', 'bg-opacity-10');
-                    const badge = item.querySelector('.badge.bg-primary');
-                    if (badge) badge.remove();
-                }
-                
                 loadUnreadCount();
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
 
-            // Navigate based on type
             if (type === 'follow' && actorId) {
                 window.location.href = `/user/profile/${actorId}`;
             } else if (blogId) {
@@ -448,7 +428,6 @@
             }
         }
 
-        // Mark all as read from offcanvas
         async function markAllReadOffcanvas() {
             try {
                 const res = await fetch('/notifications/all/read', { method: 'PUT' });
@@ -461,12 +440,9 @@
                     });
                     loadUnreadCount();
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // Delete notification from offcanvas
         async function deleteNotification(id, btn) {
             if (!confirm('Delete this notification?')) return;
             
@@ -499,19 +475,14 @@
             }
         }
 
-        // Bell click opens offcanvas
         notificationBell.addEventListener('click', () => {
             notificationOffcanvas.show();
             loadNotifications();
         });
 
-        // Initial load
         loadUnreadCount();
-
-        // Refresh count every 30 seconds
         setInterval(loadUnreadCount, 30000);
 
-        // Settings Button
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
         settingsBtn.addEventListener('click', (e) => {
