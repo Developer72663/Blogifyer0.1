@@ -11,7 +11,7 @@
     <header class="hero-section text-center py-5 bg-primary-soft border-bottom">
         <div class="container py-5">
             <h1 class="display-4 fw-bold mb-3">Welcome to Blogify</h1>
-            
+            <p class="lead text-muted mb-4">Discover stories, insights, and ideas from amazing writers around the world.</p>
             <% if (!locals.user) { %>
                 <a href="/user/signup" class="btn btn-primary btn-lg rounded-pill me-3">
                     <i class="fas fa-pen-fancy"></i> Start Writing
@@ -68,7 +68,6 @@
                                     <div class="d-flex align-items-center justify-content-between mt-3">
                                         <div class="d-flex align-items-center gap-2">
                                             <% if (blog.createdBy) { %>
-                                                <!-- CLICKABLE AUTHOR PROFILE -->
                                                 <a href="/profile/<%= blog.createdBy._id %>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
                                                     <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
                                                          alt="<%= blog.createdBy.fullName %>" 
@@ -101,54 +100,17 @@
                     <% }) %>
                 </div>
             </section>
-            <hr>
+            <hr class="my-5">
         <% } %>
 
-        <!-- Search & Filter Section -->
-        <section class="mb-5">
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <form method="GET" class="d-flex">
-                        <input type="text" name="search" value="<%= search || '' %>" 
-                               class="form-control rounded-start-pill" 
-                               placeholder="Search blogs by title or content...">
-                        <button type="submit" class="btn btn-primary rounded-end-pill ms-0">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-md-3">
-                    <form method="GET">
-                        <select name="sort" class="form-select" onchange="this.form.submit()">
-                            <option value="newest" <%= (sort === 'newest' || !sort) ? 'selected' : '' %>>
-                                Newest First
-                            </option>
-                            <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>
-                                Oldest First
-                            </option>
-                            <option value="title" <%= sort === 'title' ? 'selected' : '' %>>
-                                Title (A-Z)
-                            </option>
-                            <option value="trending" <%= sort === 'trending' ? 'selected' : '' %>>
-                                Trending
-                            </option>
-                        </select>
-                    </form>
-                </div>
-
-                <% if (search) { %>
-                    <div class="col-md-3">
-                        <a href="/" class="btn btn-outline-secondary w-100">
-                            <i class="fas fa-times"></i> Clear Search
-                        </a>
-                    </div>
-                <% } %>
-            </div>
-        </section>
-
-        <!-- Blogs Grid -->
+        <!-- Latest Blogs Section -->
         <section>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-fire text-danger"></i> Latest Stories
+                </h2>
+            </div>
+
             <% if (!blogs || blogs.length === 0) { %>
                 <div class="text-center py-5">
                     <i class="fas fa-inbox fa-5x text-muted mb-3"></i>
@@ -207,7 +169,6 @@
                                     <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top">
                                         <div class="d-flex align-items-center gap-2">
                                             <% if (blog.createdBy) { %>
-                                                <!-- CLICKABLE AUTHOR PROFILE -->
                                                 <a href="/profile/<%= blog.createdBy._id %>" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
                                                     <img src="<%= blog.createdBy.profileImageURL || '/imgs/default.png' %>" 
                                                          alt="<%= blog.createdBy.fullName %>" 
@@ -253,7 +214,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Read Button -->
                                     <a href="/blogs/<%= blog._id %>" class="btn btn-primary btn-sm rounded-pill mt-3">
                                         <i class="fas fa-arrow-right"></i> Read Full Story
                                     </a>
@@ -269,7 +229,7 @@
                         <ul class="pagination justify-content-center">
                             <% for (let i = 1; i <= totalPages; i++) { %>
                                 <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                    <a class="page-link" href="/?page=<%= i %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= sort ? '&sort=' + sort : '' %>">
+                                    <a class="page-link" href="/?page=<%= i %>">
                                         <%= i %>
                                     </a>
                                 </li>
