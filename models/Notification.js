@@ -10,7 +10,7 @@ const NotificationSchema = new Schema({
 
   type: {
     type: String,
-    enum: ["blogPost", "comment", "reply", "like", "follow", "mention"],
+    enum: ["comment", "reply", "like", "follow", "mention", "blog_post"],
     required: true
   },
 
