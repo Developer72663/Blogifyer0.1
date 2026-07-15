@@ -25,7 +25,7 @@
                     <i class="fas fa-pen-nib"></i>
                     <span>Write</span>
                 </a>
-                <a href="/user/profile" class="nav-link">
+                <a href="/profile/<%= locals.user._id %>" class="nav-link">
                     <i class="fas fa-layer-group"></i>
                     <span>My Blogs</span>
                 </a>
@@ -76,7 +76,7 @@
                         </div>
                         
                         <div class="dropdown-body">
-                            <a href="/user/profile" class="dropdown-item">
+                            <a href="/profile/<%= locals.user._id %>" class="dropdown-item">
                                 <div class="item-icon blue">
                                     <i class="fas fa-user"></i>
                                 </div>
@@ -89,14 +89,14 @@
                                 <span>Notifications</span>
                                 <span class="item-badge" id="dropdownNotifBadge" style="display: none;">0</span>
                             </a>
-                            <a href="/user/profile?tab=followers" class="dropdown-item">
+                            <a href="/profile/<%= locals.user._id %>?tab=followers" class="dropdown-item">
                                 <div class="item-icon green">
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <span>Followers</span>
                                 <span class="item-count"><%= locals.user.followers ? locals.user.followers.length : 0 %></span>
                             </a>
-                            <a href="/user/profile?tab=following" class="dropdown-item">
+                            <a href="/profile/<%= locals.user._id %>?tab=following" class="dropdown-item">
                                 <div class="item-icon pink">
                                     <i class="fas fa-heart"></i>
                                 </div>
@@ -187,7 +187,7 @@
                 <i class="fas fa-pen-nib"></i>
                 <span>Write</span>
             </a>
-            <a href="/user/profile" class="mobile-link">
+            <a href="/profile/<%= locals.user._id %>" class="mobile-link">
                 <i class="fas fa-layer-group"></i>
                 <span>My Blogs</span>
             </a>
@@ -197,7 +197,7 @@
                 <span class="mobile-badge" id="mobileNotifBadge" style="display: none;">0</span>
             </a>
             <div class="mobile-divider"></div>
-            <a href="/user/profile" class="mobile-link">
+            <a href="/profile/<%= locals.user._id %>" class="mobile-link">
                 <i class="fas fa-user"></i>
                 <span>Profile</span>
             </a>
@@ -1600,7 +1600,7 @@
             closeNotifPanelFn();
 
             if (type === 'follow' && actorId) {
-                window.location.href = `/user/profile/${actorId}`;
+                window.location.href = `/profile/${actorId}`;
             } else if (blogId) {
                 window.location.href = `/blogs/${blogId}`;
             }
