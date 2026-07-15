@@ -105,6 +105,11 @@
                                     <span class="badge bg-primary ms-2"><%= locals.user.following ? locals.user.following.length : 0 %></span>
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" href="/notifications">
+                                    <i class="fas fa-bell"></i> All Notifications
+                                </a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             
                             <li>
@@ -153,19 +158,30 @@
     </div>
 </nav>
 
-<!-- Notification Center Modal -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="notificationOffcanvas" aria-labelledby="notificationOffcanvasLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="notificationOffcanvasLabel">
-            <i class="fas fa-bell"></i> Notifications
+<!-- Notification Center Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="notificationOffcanvas" aria-labelledby="notificationOffcanvasLabel" style="width: 420px; max-width: 90vw;">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="notificationOffcanvasLabel">
+            <i class="fas fa-bell text-primary"></i> Notifications
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body p-0" id="notificationsList">
-        <div class="text-center py-5 text-muted">
-            <i class="fas fa-bell fa-3x mb-3"></i>
-            <p>No notifications yet</p>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" id="markAllReadBtn" onclick="markAllReadOffcanvas()">
+                <i class="fas fa-check-double"></i> Mark all read
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
+    </div>
+    <div class="offcanvas-body p-0" id="notificationsList" style="overflow-y: auto;">
+        <div class="text-center py-5 text-muted" id="notifEmptyState">
+            <i class="fas fa-bell fa-3x mb-3 opacity-25"></i>
+            <p>No notifications yet</p>
+            <small>When someone interacts with your blogs, you'll see it here.</small>
+        </div>
+    </div>
+    <div class="offcanvas-footer border-top p-2 text-center">
+        <a href="/notifications" class="btn btn-link text-decoration-none fw-medium">
+            <i class="fas fa-external-link-alt"></i> View All Notifications
+        </a>
     </div>
 </div>
 
@@ -211,7 +227,6 @@
 <script>
     // Dark Mode Toggle
     const themeToggle = document.getElementById('themeToggle');
-    const htmlElement = document.documentElement;
     const savedTheme = localStorage.getItem('theme') || 'light';
 
     // Apply saved theme on page load
@@ -229,22 +244,54 @@
             '<i class="fas fa-moon fa-lg" style="color: #6366f1;"></i>';
     });
 
-    // Notifications
+    // ====================== NOTIFICATIONS SYSTEM ======================
     <% if (locals.user) { %>
         const notificationBell = document.getElementById('notificationBell');
-        const notificationOffcanvas = new bootstrap.Offcanvas(document.getElementById('notificationOffcanvas'));
+        const notificationOffcanvasEl = document.getElementById('notificationOffcanvas');
+        const notificationOffcanvas = new bootstrap.Offcanvas(notificationOffcanvasEl);
+        let currentNotifications = [];
 
-        // Load notifications
+        // Load unread count on page load
+        async function loadUnreadCount() {
+            try {
+                const res = await fetch('/notifications/unread/count');
+                const data = await res.json();
+                if (data.success) {
+                    const badge = document.getElementById('notificationBadge');
+                    const count = document.getElementById('notificationCount');
+                    if (data.unreadCount > 0) {
+                        count.textContent = data.unreadCount > 99 ? '99+' : data.unreadCount;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading unread count:', err);
+            }
+        }
+
+        // Load notifications into offcanvas
         async function loadNotifications() {
             try {
-                const res = await fetch('/notifications?page=1');
+                const res = await fetch('/notifications?page=1&limit=15', {
+                    headers: { 'Accept': 'application/json' }
+                });
                 const data = await res.json();
 
                 if (data.success) {
+                    currentNotifications = data.notifications;
                     const unreadCount = data.notifications.filter(n => !n.isRead).length;
-                    document.getElementById('notificationCount').textContent = unreadCount;
+                    
+                    // Update badge
                     const badge = document.getElementById('notificationBadge');
-                    badge.style.display = unreadCount > 0 ? 'block' : 'none';
+                    const count = document.getElementById('notificationCount');
+                    if (unreadCount > 0) {
+                        count.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
 
                     renderNotifications(data.notifications);
                 }
@@ -255,41 +302,214 @@
 
         function renderNotifications(notifications) {
             const container = document.getElementById('notificationsList');
+            const emptyState = document.getElementById('notifEmptyState');
+
             if (notifications.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-bell fa-3x mb-3"></i>
+                    <div class="text-center py-5 text-muted" id="notifEmptyState">
+                        <i class="fas fa-bell fa-3x mb-3 opacity-25"></i>
                         <p>No notifications yet</p>
+                        <small>When someone interacts with your blogs, you'll see it here.</small>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = notifications.map(notif => `
-                <div class="p-3 border-bottom notification-item ${!notif.isRead ? 'bg-light' : ''}">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">${notif.title}</h6>
-                            <p class="mb-1 small">${notif.message}</p>
-                            <small class="text-muted">
-                                ${new Date(notif.createdAt).toLocaleDateString()}
-                            </small>
+            container.innerHTML = notifications.map(notif => {
+                const isUnread = !notif.isRead;
+                const actorName = notif.actor ? notif.actor.fullName : 'Someone';
+                const actorImg = notif.actor ? (notif.actor.profileImageURL || '/imgs/default.png') : '/imgs/default.png';
+                const blogImg = notif.blog ? (notif.blog.coverImageURL || '/imgs/default-blog.png') : null;
+                const blogTitle = notif.blog ? notif.blog.title : '';
+                const blogId = notif.blog ? notif.blog._id : '';
+                const timeAgo = getTimeAgo(notif.createdAt);
+
+                let iconClass = 'fa-bell';
+                let iconColor = '#6366f1';
+                let actionText = '';
+
+                switch(notif.type) {
+                    case 'blog_post':
+                        iconClass = 'fa-file-alt';
+                        iconColor = '#10b981';
+                        actionText = 'published a new blog';
+                        break;
+                    case 'like':
+                        iconClass = 'fa-heart';
+                        iconColor = '#ef4444';
+                        actionText = 'liked your blog';
+                        break;
+                    case 'comment':
+                        iconClass = 'fa-comment';
+                        iconColor = '#3b82f6';
+                        actionText = 'commented on your blog';
+                        break;
+                    case 'reply':
+                        iconClass = 'fa-reply';
+                        iconColor = '#8b5cf6';
+                        actionText = 'replied to your comment';
+                        break;
+                    case 'follow':
+                        iconClass = 'fa-user-plus';
+                        iconColor = '#f59e0b';
+                        actionText = 'started following you';
+                        break;
+                    case 'mention':
+                        iconClass = 'fa-at';
+                        iconColor = '#ec4899';
+                        actionText = 'mentioned you';
+                        break;
+                }
+
+                return `
+                    <div class="notification-item p-3 border-bottom ${isUnread ? 'bg-primary bg-opacity-10' : ''}" 
+                         data-id="${notif._id}" 
+                         style="cursor: pointer; transition: all 0.2s;"
+                         onclick="handleNotificationClick('${notif._id}', '${notif.type}', '${blogId}', '${notif.actor ? notif.actor._id : ''}')">
+                        <div class="d-flex gap-3">
+                            <div class="flex-shrink-0 position-relative">
+                                <img src="${actorImg}" 
+                                     alt="${actorName}" 
+                                     class="rounded-circle" 
+                                     width="44" 
+                                     height="44" 
+                                     style="object-fit: cover; border: 2px solid ${isUnread ? iconColor : '#e5e7eb'};"
+                                     onerror="this.src='/imgs/default.png';">
+                                <span class="position-absolute bottom-0 end-0 translate-middle-y badge rounded-circle p-1" 
+                                      style="background: ${iconColor}; font-size: 0.6rem;">
+                                    <i class="fas ${iconClass} text-white" style="font-size: 0.5rem;"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1" style="min-width: 0;">
+                                <p class="mb-1 small" style="line-height: 1.5;">
+                                    <strong class="text-dark">${actorName}</strong> ${actionText}
+                                </p>
+                                ${blogTitle ? `<p class="mb-1 text-muted small text-truncate" style="font-size: 0.8rem;"><i class="fas fa-book-open me-1"></i>${blogTitle}</p>` : ''}
+                                <div class="d-flex align-items-center gap-2">
+                                    <small class="text-muted" style="font-size: 0.75rem;">${timeAgo}</small>
+                                    ${isUnread ? '<span class="badge bg-primary rounded-pill" style="font-size: 0.6rem;">New</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <button class="btn btn-sm btn-link text-danger p-1" 
+                                        onclick="event.stopPropagation(); deleteNotification('${notif._id}', this)"
+                                        title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
-                        <% if (locals.user) { %>
-                            ${!notif.isRead ? '<span class="badge bg-primary ms-2">New</span>' : ''}
-                        <% } %>
+                        ${blogImg ? `
+                            <div class="mt-2 ms-5">
+                                <img src="${blogImg}" 
+                                     class="rounded" 
+                                     style="width: 100%; height: 100px; object-fit: cover;" 
+                                     onerror="this.style.display='none';">
+                            </div>
+                        ` : ''}
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            const intervals = { year: 31536000, month: 2592000, week: 604800, day: 86400, hour: 3600, minute: 60 };
+            for (const [unit, secs] of Object.entries(intervals)) {
+                const count = Math.floor(seconds / secs);
+                if (count >= 1) return `${count} ${unit}${count > 1 ? 's' : ''} ago`;
+            }
+            return 'Just now';
+        }
+
+        // Handle notification click - mark read + navigate
+        async function handleNotificationClick(id, type, blogId, actorId) {
+            // Mark as read
+            try {
+                await fetch(`/notifications/${id}/read`, { method: 'PUT' });
+                
+                // Update UI
+                const item = document.querySelector(`[data-id="${id}"]`);
+                if (item) {
+                    item.classList.remove('bg-primary', 'bg-opacity-10');
+                    const badge = item.querySelector('.badge.bg-primary');
+                    if (badge) badge.remove();
+                }
+                
+                loadUnreadCount();
+            } catch (e) {
+                console.error(e);
+            }
+
+            // Navigate based on type
+            if (type === 'follow' && actorId) {
+                window.location.href = `/user/profile/${actorId}`;
+            } else if (blogId) {
+                window.location.href = `/blogs/${blogId}`;
+            }
+        }
+
+        // Mark all as read from offcanvas
+        async function markAllReadOffcanvas() {
+            try {
+                const res = await fetch('/notifications/all/read', { method: 'PUT' });
+                const data = await res.json();
+                if (data.success) {
+                    document.querySelectorAll('.notification-item').forEach(item => {
+                        item.classList.remove('bg-primary', 'bg-opacity-10');
+                        const badge = item.querySelector('.badge.bg-primary');
+                        if (badge) badge.remove();
+                    });
+                    loadUnreadCount();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Delete notification from offcanvas
+        async function deleteNotification(id, btn) {
+            if (!confirm('Delete this notification?')) return;
+            
+            const item = btn.closest('.notification-item');
+            item.style.transition = 'all 0.3s';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(100px)';
+            
+            try {
+                const res = await fetch(`/notifications/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    setTimeout(() => {
+                        item.remove();
+                        loadUnreadCount();
+                        if (document.querySelectorAll('.notification-item').length === 0) {
+                            document.getElementById('notificationsList').innerHTML = `
+                                <div class="text-center py-5 text-muted" id="notifEmptyState">
+                                    <i class="fas fa-bell fa-3x mb-3 opacity-25"></i>
+                                    <p>No notifications yet</p>
+                                    <small>When someone interacts with your blogs, you'll see it here.</small>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                }
+            } catch (e) {
+                item.style.opacity = '1';
+                item.style.transform = 'none';
+            }
+        }
+
+        // Bell click opens offcanvas
         notificationBell.addEventListener('click', () => {
             notificationOffcanvas.show();
             loadNotifications();
         });
 
-        // Load notifications on page load
-        loadNotifications();
+        // Initial load
+        loadUnreadCount();
+
+        // Refresh count every 30 seconds
+        setInterval(loadUnreadCount, 30000);
 
         // Settings Button
         const settingsBtn = document.getElementById('settingsBtn');
